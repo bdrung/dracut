@@ -160,10 +160,20 @@ generate_initramfs()
 # Invoke bootloader
 run_bootloader()
 {
-	# invoke policy conformant bootloader hooks
+	# Avoid warnings from run-parts in case only one directory exists
+	local directories=""
+
 	if [ -d /etc/initramfs/post-update.d/ ]; then
-		run-parts --arg="${version}" --arg="${initramfs}" \
-			/etc/initramfs/post-update.d/
+		directories="$directories /etc/initramfs/post-update.d/"
+	fi
+	if [ -d /usr/share/initramfs/post-update.d/ ]; then
+		directories="$directories /usr/share/initramfs/post-update.d/"
+	fi
+
+	# invoke policy conformant bootloader hooks
+	if [ -n "$directories" ]; then
+		# shellcheck disable=SC2086
+		run-parts --arg="${version}" --arg="${initramfs}" $directories
 		return 0
 	fi
 }
