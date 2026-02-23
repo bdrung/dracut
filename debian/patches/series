@@ -1,4 +1,3 @@
-fix-multipath-include-Debian-specific-priority-of-udev-ru.patch
 fix-net-lib-normalize-iSCSI-target-names-on-the-iqn.-eui..patch
 fix-iscsi-do-not-source-the-boot-time-net-lib.sh-into-mod.patch
 fix-iscsi-normalize-the-target-name-in-the-generated-netr.patch
