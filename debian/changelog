@@ -1,3 +1,20 @@
+dracut (110-2) unstable; urgency=medium
+
+  * Run MD RAID test cases in test 70 and 71 again (fixed in mdadm 4.5-5)
+  * fix(multipath): include Debian-specific priority of udev rules until
+    Debian and upstream agrees on one common numbering (see LP 2137190)
+  * Build-depend on libsystemd-dev to build dracut-install with JSON support
+    (Closes: #1128349)
+  * Apply upstream patches to fix failing autopkgtest 14-hooks on Ubuntu:
+    - fix(kernel-modules-export): use return instead of exit in pre-pivot hook
+    - fix(memdisk): use return instead of exit in cmdline hook
+    - fix(ppcmac): use return instead of exit in pre-udev hook
+    - fix(syslog): use return instead of exit in initqueue/online hook
+  * dracut-test: add run-qemu and test-functions
+  * autopkgtest: Doule timeout to 20 min for slow architectures armhf, riscv64
+
+ -- Benjamin Drung <bdrung@debian.org>  Mon, 23 Feb 2026 14:25:02 +0100
+
 dracut (110-1) unstable; urgency=medium
 
   * New upstream release.
