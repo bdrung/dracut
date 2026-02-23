@@ -1,4 +1,3 @@
-fix-multipath-include-Debian-specific-priority-of-udev-ru.patch
 fix-nbd-use-usr-sbin-nbd-client-for-CONFIG_FEATURE_PREFER.patch
 fix-dracut-systemd-use-sbin-sulogin-for-CONFIG_FEATURE_PR.patch
 fix-use-sbin-losetup-for-CONFIG_FEATURE_PREFER_APPLETS.patch
