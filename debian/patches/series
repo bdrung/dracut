@@ -1,4 +1,3 @@
-fix-multipath-include-Debian-specific-priority-of-udev-ru.patch
 fix-iscsi-handle-empty-URI-in-firmware-boot-mode.patch
 test-exit-after-create-root.sh-has-been-run.patch
 fix-systemd-add-new-dlopen-dependencies-to-modules-l.patch
