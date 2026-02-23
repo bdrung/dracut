@@ -1,1 +1,2 @@
 fix-multipath-include-Debian-specific-priority-of-udev-ru.patch
+fix-kernel-modules-export-use-return-instead-of-exit-in-p.patch
