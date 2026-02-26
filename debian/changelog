@@ -1,3 +1,11 @@
+dracut (110-3) unstable; urgency=medium
+
+  [ Hector Cao ]
+  * test: force cpu to neoverse-n1 for arm64 when QEMU_CPU not set
+    (Closes: #1128969, LP: #2142121)
+
+ -- Benjamin Drung <bdrung@debian.org>  Thu, 26 Feb 2026 17:08:57 +0100
+
 dracut (110-2) unstable; urgency=medium
 
   * Run MD RAID test cases in test 70 and 71 again (fixed in mdadm 4.5-5)
