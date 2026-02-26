@@ -18,8 +18,8 @@ Until Debian/Ubuntu and upstream agrees on one common naming, include
 the renumbered udev rules (similar to what has been done in the dm and
 lvm Dracut modules).
 
-Fixes: https://github.com/dracut-ng/dracut-ng/issues/2179
 Bug-Ubuntu: https://launchpad.net/bugs/2137190
+Forwarded: not-needed
 ---
  modules.d/70dmraid/module-setup.sh    | 2 ++
  modules.d/70multipath/module-setup.sh | 2 ++

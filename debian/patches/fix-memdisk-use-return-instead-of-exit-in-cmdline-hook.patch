@@ -9,6 +9,7 @@ module) to exit. The subsequent hooks are not executed.
 Use `return` instead of `exit` in the memdisk cmdline hook.
 
 Fixes: https://github.com/dracut-ng/dracut-ng/issues/2227
+Forwarded: https://github.com/dracut-ng/dracut-ng/pull/2238
 ---
  modules.d/70memdisk/memdisk.sh | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)

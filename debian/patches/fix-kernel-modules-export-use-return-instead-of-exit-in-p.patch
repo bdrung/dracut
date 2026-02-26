@@ -11,6 +11,7 @@ Use `return` instead of `exit` in kernel-modules-export pre-pivot hook.
 
 Co-authored-by: Neal Gompa <neal@gompa.dev>
 Fixes: https://github.com/dracut-ng/dracut-ng/issues/2227
+Forwarded: https://github.com/dracut-ng/dracut-ng/pull/2238
 ---
  man/dracut.modules.7.adoc                           |  7 ++++++-
  modules.d/70kernel-modules-export/modules-export.sh | 12 ++++++------

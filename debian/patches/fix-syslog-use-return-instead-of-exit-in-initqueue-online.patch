@@ -8,6 +8,7 @@ causes the sourcing script to exit. The subsequent code is not executed.
 Use `return` instead of `exit` in the syslog initqueue/online hook.
 
 Fixes: https://github.com/dracut-ng/dracut-ng/issues/2227
+Forwarded: https://github.com/dracut-ng/dracut-ng/pull/2238
 ---
  modules.d/77syslog/rsyslogd-start.sh | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
