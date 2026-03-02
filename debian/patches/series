@@ -5,3 +5,4 @@ fix-ppcmac-use-return-instead-of-exit-in-pre-udev-hook.patch
 fix-syslog-use-return-instead-of-exit-in-initqueue-online.patch
 test-force-cpu-to-neoverse-n1-for-arm64-when-QEMU_CPU-not.patch
 test-use-separate-networks-for-different-NICs.patch
+test-start-hostname-numbering-at-0.patch
