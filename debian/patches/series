@@ -7,3 +7,4 @@ test-force-cpu-to-neoverse-n1-for-arm64-when-QEMU_CPU-not.patch
 test-use-separate-networks-for-different-NICs.patch
 test-start-hostname-numbering-at-0.patch
 test-do-not-use-the-same-IP-for-different-MAC-addresses.patch
+fix-dbus-remove-After-Requires-from-dbus-service-socket.patch
