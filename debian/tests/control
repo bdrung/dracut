@@ -97,19 +97,20 @@ Architecture: !armel !i386
 Restrictions: allow-stderr, needs-root
 Depends: curl,
          dmsetup,
+         dnsmasq,
          dracut-network,
          dracut-test,
-         isc-dhcp-server,
          nfs-kernel-server,
-         procps
+         procps,
+         tcpdump
 
 Tests: 70-iscsi, 71-iscsi-multi
 Architecture: !armel !i386
 Restrictions: allow-stderr, needs-root
 Depends: cryptsetup,
+         dnsmasq,
          dracut-network,
          dracut-test,
-         isc-dhcp-server,
          lvm2,
          mdadm,
          open-iscsi,
@@ -121,9 +122,9 @@ Tests: 72-nbd
 Architecture: !armel !i386
 Restrictions: allow-stderr, needs-root
 Depends: cryptsetup,
+         dnsmasq,
          dracut-network,
          dracut-test,
-         isc-dhcp-server,
          lvm2,
          mdadm,
          nbd-client,
