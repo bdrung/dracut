@@ -9,3 +9,4 @@ test-start-hostname-numbering-at-0.patch
 test-do-not-use-the-same-IP-for-different-MAC-addresses.patch
 fix-dbus-remove-After-Requires-from-dbus-service-socket.patch
 test-use-different-MAC-addresses-for-all-NFS-client-tests.patch
+test-switch-QEMU-network-backend-to-dgram-UDP.patch
