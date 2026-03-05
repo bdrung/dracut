@@ -1,3 +1,16 @@
+dracut (110-4) unstable; urgency=medium
+
+  * Cherry-pick upstream fixes:
+    - test: use separate networks for different NICs
+    - test: start hostname numbering at 0
+    - test: do not use the same IP for different MAC addresses
+    - fix(dbus): remove After/Requires from dbus service/socket (LP: #2141603)
+    - test: use different MAC addresses for all NFS client tests
+    - test: switch QEMU network backend to dgram (UDP)
+    - test: switch from isc-dhcp-server to dnsmasq
+
+ -- Benjamin Drung <bdrung@debian.org>  Thu, 05 Mar 2026 21:32:20 +0100
+
 dracut (110-3) unstable; urgency=medium
 
   [ Hector Cao ]
