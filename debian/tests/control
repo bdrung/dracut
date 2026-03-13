@@ -17,7 +17,7 @@ Restrictions: allow-stderr, needs-root
 Depends: dracut-test
 
 Tests: 11-usr-mount
-Architecture: !armel !i386
+Architecture: !armel !i386 !riscv64
 Restrictions: allow-stderr, needs-root
 Depends: btrfs-progs, dracut-test
 
@@ -34,7 +34,7 @@ Depends: dracut-test,
          systemd-ukify
 
 Tests: 20-storage, 26-enc-raid-lvm
-Architecture: !armel !i386
+Architecture: !armel !i386 !riscv64
 Restrictions: allow-stderr, needs-root
 Depends: cryptsetup, dracut-test, lvm2, mdadm, systemd-cryptsetup
 
@@ -57,7 +57,7 @@ Restrictions: allow-stderr, needs-root
 Depends: curl, dmsetup, dracut-network, dracut-test, python3, squashfs-tools
 
 Tests: 41-full-systemd
-Architecture: !armel !i386
+Architecture: !armel !i386 !riscv64
 Restrictions: allow-stderr, needs-root
 Depends: btrfs-progs,
          cryptsetup,
@@ -93,7 +93,7 @@ Restrictions: allow-stderr, needs-root
 Depends: dracut-network, dracut-test
 
 Tests: 60-nfs
-Architecture: !armel !i386
+Architecture: !armel !i386 !riscv64
 Restrictions: allow-stderr, needs-root
 Depends: curl,
          dmsetup,
@@ -105,7 +105,7 @@ Depends: curl,
          tcpdump
 
 Tests: 70-iscsi, 71-iscsi-multi
-Architecture: !armel !i386
+Architecture: !armel !i386 !riscv64
 Restrictions: allow-stderr, needs-root
 Depends: cryptsetup,
          dnsmasq,
@@ -119,7 +119,7 @@ Depends: cryptsetup,
          tgt
 
 Tests: 72-nbd
-Architecture: !armel !i386
+Architecture: !armel !i386 !riscv64
 Restrictions: allow-stderr, needs-root
 Depends: cryptsetup,
          dnsmasq,
