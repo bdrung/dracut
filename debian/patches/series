@@ -12,3 +12,4 @@ test-use-different-MAC-addresses-for-all-NFS-client-tests.patch
 test-switch-QEMU-network-backend-to-dgram-UDP.patch
 test-switch-from-isc-dhcp-server-to-dnsmasq.patch
 fix-crypt-honor-timeout-setting-when-using-UUID-LABEL-etc.patch
+fix-crypt-use-d-instead-of-f-to-check-for-NEWROOT-proc-di.patch
