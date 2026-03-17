@@ -27,7 +27,7 @@ if test "$ARCH" = "ppc64el"; then
 fi
 
 case "$ARCH" in
-	armhf)
+	arm64 | armhf)
 		# Doule timeout to 20 min for slow architectures
 		export QEMU_TIMEOUT=1200
 		;;
