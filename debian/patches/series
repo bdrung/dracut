@@ -18,3 +18,4 @@ test-SYSTEMD-INITRD-increase-device-timeout-to-infinity.patch
 fix-systemd-networkd-create-run-systemd-network-if-missin.patch
 fix-base-move-initrd.target.wants-symlink-creation-to-wai.patch
 fix-crypt-use-systemd-generator-for-setting-the-timeout.patch
+fix-kernel-modules-install-mmc-drivers-on-all-architectur.patch
