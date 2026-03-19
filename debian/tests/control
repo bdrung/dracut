@@ -87,8 +87,9 @@ Depends: dracut-network,
          squashfs-tools,
          systemd-container
 
+# systemd-networkd-wait-online.service times out on riscv64: https://github.com/dracut-ng/dracut-ng/issues/2309
 Tests: 50-network
-Architecture: !armel !i386
+Architecture: !armel !i386 !riscv64
 Restrictions: allow-stderr, needs-root
 Depends: dracut-network, dracut-test
 
