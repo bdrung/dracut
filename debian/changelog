@@ -1,3 +1,20 @@
+dracut (110-6) unstable; urgency=medium
+
+  * Cherry-pick upstream commits:
+    - fix(crypt): use -d instead of -f to check for $NEWROOT/proc directory
+    - feat(overlayfs): support tmpfs size parameter in rd.overlay
+    - fix(systemd-networkd): create /run/systemd/network if missing
+    - test(SYSTEMD-INITRD): increase device timeout to infinity
+  * fix(base): move initrd.target.wants symlink creation to wait_for_dev
+  * fix(crypt): use systemd generator for setting the timeout (LP: #2143264)
+  * fix(kernel-modules): install mmc drivers on all architectures (LP: #2143030)
+  * autopkgtest:
+    - double timeout to 20 min for arm64
+    - skip slow 31-livenet and 45-systemd-import on riscv64
+    - skip 50-network on riscv64 due to systemd-networkd-wait-online timeout
+
+ -- Benjamin Drung <bdrung@debian.org>  Thu, 19 Mar 2026 23:19:30 +0100
+
 dracut (110-5) unstable; urgency=medium
 
   * fix(crypt): honor timeout setting when using UUID, LABEL, etc
