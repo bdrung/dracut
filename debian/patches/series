@@ -16,3 +16,4 @@ fix-crypt-use-d-instead-of-f-to-check-for-NEWROOT-proc-di.patch
 feat-overlayfs-support-tmpfs-size-parameter-in-rd.overlay.patch
 test-SYSTEMD-INITRD-increase-device-timeout-to-infinity.patch
 fix-systemd-networkd-create-run-systemd-network-if-missin.patch
+fix-base-move-initrd.target.wants-symlink-creation-to-wai.patch
