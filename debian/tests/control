@@ -52,7 +52,7 @@ Depends: dmsetup,
          xorriso
 
 Tests: 31-livenet
-Architecture: !armel !i386
+Architecture: !armel !i386 !riscv64
 Restrictions: allow-stderr, needs-root
 Depends: curl, dmsetup, dracut-network, dracut-test, python3, squashfs-tools
 
@@ -76,7 +76,7 @@ Restrictions: allow-stderr, needs-root
 Depends: dracut-test, xfsprogs
 
 Tests: 45-systemd-import
-Architecture: !armel !i386
+Architecture: !armel !i386 !riscv64
 Restrictions: allow-stderr, needs-root
 Depends: dracut-network,
          dracut-test,
