@@ -22,3 +22,4 @@ fix-kernel-modules-install-mmc-drivers-on-all-architectur.patch
 fix-zipl-repair-parsing-of-rd.zipl-LABEL-UUID.patch
 test-run-qemu-double-QEMU-timeout-to-20-min-on-ARM.patch
 fix-dracut-enable-hostonly_cmdline-in-hostonly-mode-again.patch
+fix-dracut-properly-detect-kernel-version-with-sysroot.patch
