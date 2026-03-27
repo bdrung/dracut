@@ -26,17 +26,6 @@ if test "$ARCH" = "ppc64el"; then
 	export NO_KVM=1
 fi
 
-case "$ARCH" in
-	arm64 | armhf)
-		# Doule timeout to 20 min for slow architectures
-		export QEMU_TIMEOUT=1200
-		;;
-	riscv64)
-		# Tripple timeout to 30 min for slow architectures
-		export QEMU_TIMEOUT=1800
-		;;
-esac
-
 # Workaround masked systemd-udevd bug: https://github.com/dracut-ng/dracut-ng/issues/1318
 rm -f /etc/systemd/system/systemd-udevd.service
 
