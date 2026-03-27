@@ -1,3 +1,14 @@
+dracut (110-8) unstable; urgency=medium
+
+  * Cherry-pick upstream fixes:
+    - fix(zipl): repair parsing of rd.zipl=LABEL|UUID|...=
+    - test(run-qemu): double QEMU timeout to 20 min on ARM
+    - fix(dracut): enable hostonly_cmdline in hostonly mode again (LP: #2144948)
+    - fix(dracut): properly detect kernel version with --sysroot
+    - test(FULL-SYSTEMD): increase device timeout to infinity
+
+ -- Benjamin Drung <bdrung@debian.org>  Fri, 27 Mar 2026 22:12:37 +0100
+
 dracut (110-7) unstable; urgency=medium
 
   * correct fix(base): move initrd.target.wants symlink creation to wait_for_dev
