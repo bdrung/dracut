@@ -1,3 +1,16 @@
+dracut (110-9) unstable; urgency=medium
+
+  * update-initramfs: support loading post-update hooks from /usr/share/ too
+    (LP: #2147002)
+  * Cherry-pick upstream fixes:
+    - fix(SYSTEMD-IMPORT): remount /sysroot with dev and suid flags
+      (LP: #2146342)
+    - fix(dracut): determine hostonly_cmdline after hostonly setting
+      (Closes: #1132794)
+  * Bump Standards-Version to 4.7.4
+
+ -- Benjamin Drung <bdrung@debian.org>  Tue, 07 Apr 2026 12:37:12 +0200
+
 dracut (110-8) unstable; urgency=medium
 
   * Cherry-pick upstream fixes:
