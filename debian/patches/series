@@ -25,3 +25,4 @@ fix-dracut-enable-hostonly_cmdline-in-hostonly-mode-again.patch
 fix-dracut-properly-detect-kernel-version-with-sysroot.patch
 test-FULL-SYSTEMD-increase-device-timeout-to-infinity.patch
 fix-SYSTEMD-IMPORT-remount-sysroot-with-dev-and-suid-flag.patch
+fix-dracut-determine-hostonly_cmdline-after-hostonly-sett.patch
