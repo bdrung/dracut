@@ -17,7 +17,7 @@ conditional to only the affected systemd versions.
 
 Fixes: https://github.com/dracut-ng/dracut-ng/issues/2318
 Bug-Ubuntu: https://launchpad.net/bugs/2146342
-Woraround for: https://github.com/systemd/systemd/issues/41352
+Workaround for: https://github.com/systemd/systemd/issues/41352
 Forwarded: https://github.com/dracut-ng/dracut-ng/pull/2347
 ---
  .../45systemd-import/dracut-remount-sysroot.service | 14 ++++++++++++++
