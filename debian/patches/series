@@ -27,3 +27,4 @@ test-FULL-SYSTEMD-increase-device-timeout-to-infinity.patch
 fix-SYSTEMD-IMPORT-remount-sysroot-with-dev-and-suid-flag.patch
 fix-dracut-determine-hostonly_cmdline-after-hostonly-sett.patch
 fix-set-DRACUT_TMPDIR-before-using-it-in-dlog_init.patch
+docs-mention-order-of-precedence.patch
