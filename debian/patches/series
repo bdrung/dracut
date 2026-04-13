@@ -32,3 +32,4 @@ test-run-all-tests-with-no-hostonly-cmdline.patch
 fix-dracut-remove-leading-space-from-recorded-arguments.patch
 fix-dracut-do-not-record-parameters-that-do-not-change-th.patch
 refactor-70crypt-extract-luks_open_interactive-into-crypt.patch
+feat-overlayfs-crypt-add-new-encrypted-persistent-overlay.patch

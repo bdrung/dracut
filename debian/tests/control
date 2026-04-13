@@ -6,7 +6,6 @@ Restrictions: needs-root, superficial
 Tests: 10-basic,
        13-sysroot,
        14-hooks,
-       21-overlayfs,
        40-systemd,
        42-systemd-initrd,
        43-kernel-install,
@@ -37,6 +36,11 @@ Tests: 20-storage, 26-enc-raid-lvm
 Architecture: !armel !i386 !riscv64
 Restrictions: allow-stderr, needs-root
 Depends: cryptsetup, dracut-test, lvm2, mdadm, systemd-cryptsetup
+
+Tests: 21-overlayfs
+Architecture: !armel !i386
+Restrictions: allow-stderr, needs-root
+Depends: cryptsetup, dracut-test
 
 Tests: 30-dmsquash
 Architecture: !armel !i386

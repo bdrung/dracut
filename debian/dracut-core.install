@@ -84,6 +84,7 @@ usr/lib/dracut/modules.d/70overlayfs
 usr/lib/dracut/modules.d/70pcmcia
 usr/lib/dracut/modules.d/70ppcmac
 usr/lib/dracut/modules.d/70qemu
+usr/lib/dracut/modules.d/71overlayfs-crypt
 usr/lib/dracut/modules.d/71systemd-cryptsetup
 usr/lib/dracut/modules.d/73crypt-gpg
 usr/lib/dracut/modules.d/73crypt-loop
