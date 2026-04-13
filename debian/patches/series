@@ -35,3 +35,4 @@ refactor-70crypt-extract-luks_open_interactive-into-crypt.patch
 feat-overlayfs-crypt-add-new-encrypted-persistent-overlay.patch
 feat-dracut-add-a-DRACUT_EXTRA_ARGS-environment-variable.patch
 refactor-overlayfs-exit-early-in-case-LiveOS_rootfs-is-mo.patch
+fix-overlayfs-unmount-NEWROOT-before-mounting-overlay.patch
