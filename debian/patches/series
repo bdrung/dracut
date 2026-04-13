@@ -29,3 +29,4 @@ fix-dracut-determine-hostonly_cmdline-after-hostonly-sett.patch
 fix-set-DRACUT_TMPDIR-before-using-it-in-dlog_init.patch
 docs-mention-order-of-precedence.patch
 test-run-all-tests-with-no-hostonly-cmdline.patch
+fix-dracut-remove-leading-space-from-recorded-arguments.patch
