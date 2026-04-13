@@ -1,3 +1,20 @@
+dracut (110-11) unstable; urgency=medium
+
+  * Cherry-pick upstream commits:
+    - fix(dracut): remove leading space from recorded arguments
+    - fix(dracut): do not record parameters that do not change the initrd
+    - refactor(70crypt): extract luks_open_interactive into crypt-lib
+    - feat(overlayfs-crypt): add new encrypted persistent overlay support
+      (LP: #2125790, #2148194)
+    - feat(dracut): add a DRACUT_EXTRA_ARGS environment variable
+      (Closes: #1132794)
+    - refactor(overlayfs): exit early in case LiveOS_rootfs is mounted
+    - fix(overlayfs): unmount NEWROOT before mounting overlay (LP: #2147471)
+  * dracut-core: add new overlayfs-crypt module
+  * 21-overlayfs autopkgtest: add cryptsetup dependency
+
+ -- Benjamin Drung <bdrung@debian.org>  Mon, 13 Apr 2026 15:34:06 +0200
+
 dracut (110-10) unstable; urgency=medium
 
   * Cherry-pick upstream fixes:
