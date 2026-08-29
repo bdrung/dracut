@@ -18,6 +18,7 @@ usr/lib/dracut/dracut.conf.d/no-network
 usr/lib/dracut/dracut.conf.d/rescue
 usr/lib/dracut/extractinitrd
 usr/lib/dracut/modules.d/10bash
+usr/lib/dracut/modules.d/10busybox
 usr/lib/dracut/modules.d/10dash
 usr/lib/dracut/modules.d/10systemd
 usr/lib/dracut/modules.d/11fips
@@ -128,7 +129,6 @@ usr/lib/dracut/modules.d/77syslog
 usr/lib/dracut/modules.d/77usrmount
 usr/lib/dracut/modules.d/78systemd-sysusers
 usr/lib/dracut/modules.d/80base
-usr/lib/dracut/modules.d/81busybox
 usr/lib/dracut/modules.d/84memstrack
 usr/lib/dracut/modules.d/85shell-interpreter
 usr/lib/dracut/modules.d/86shutdown
