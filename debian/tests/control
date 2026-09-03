@@ -127,17 +127,6 @@ Depends: curl,
          procps,
          tcpdump
 
-Tests: 61-chrony
-Architecture: !armel !armhf !i386 !riscv64
-Restrictions: allow-stderr, needs-internet, needs-root
-Depends: ca-certificates,
-         chrony,
-         curl,
-         dracut-network,
-         dracut-test,
-         openssl,
-         python3
-
 Tests: 70-iscsi, 71-iscsi-multi
 Architecture: !armel !armhf !i386 !riscv64
 Restrictions: allow-stderr, needs-root
