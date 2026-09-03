@@ -1,0 +1,520 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Mon, 24 Aug 2026 20:03:10 +0200
+Subject: chore: remove skipcpio
+
+The helper command `skipcpio` has been replaced by `extractcpio` and is
+not used anywhere anymore.
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/adf8329557fd8542d2287132f496d6f74c76261c
+---
+ .github/labeler.yml                        |   4 -
+ .github/workflows/daily-basic.yml          |   3 -
+ .github/workflows/daily-hostonlystrict.yml |   1 -
+ .github/workflows/daily-omitsystemd.yml    |   1 -
+ .github/workflows/integration.yml          |   1 -
+ .gitignore                                 |   1 -
+ Makefile                                   |  10 +-
+ src/skipcpio/skipcpio.c                    | 220 -----------------------------
+ test/TEST-81-SKIPCPIO/Makefile             |   1 -
+ test/TEST-81-SKIPCPIO/test.sh              | 124 ----------------
+ 10 files changed, 1 insertion(+), 365 deletions(-)
+ delete mode 100644 src/skipcpio/skipcpio.c
+ delete mode 100644 test/TEST-81-SKIPCPIO/Makefile
+ delete mode 100755 test/TEST-81-SKIPCPIO/test.sh
+
+diff --git a/.github/labeler.yml b/.github/labeler.yml
+index 92caabf..6b587b3 100644
+--- a/.github/labeler.yml
++++ b/.github/labeler.yml
+@@ -47,10 +47,6 @@ extractinitrd:
+     - changed-files:
+           - any-glob-to-any-file: 'src/extractinitrd/*'
+ 
+-skipcpio:
+-    - changed-files:
+-          - any-glob-to-any-file: 'src/skipcpio/*'
+-
+ c:
+     - changed-files:
+           - any-glob-to-any-file: 'src/**/*.c'
+diff --git a/.github/workflows/daily-basic.yml b/.github/workflows/daily-basic.yml
+index 6d3d892..be3f91b 100644
+--- a/.github/workflows/daily-basic.yml
++++ b/.github/workflows/daily-basic.yml
+@@ -47,7 +47,6 @@ jobs:
+                     - "30"
+                     - "50"
+                     - "80"
+-                    - "81"
+                     - "82"
+                     - "83"
+                 exclude:
+@@ -108,7 +107,6 @@ jobs:
+                     - "30"
+                     - "50"
+                     - "80"
+-                    - "81"
+                     - "82"
+                     - "83"
+                 exclude:
+@@ -150,7 +148,6 @@ jobs:
+                     - "30"
+                     - "50"
+                     - "80"
+-                    - "81"
+                     - "82"
+                     - "83"
+         container:
+diff --git a/.github/workflows/daily-hostonlystrict.yml b/.github/workflows/daily-hostonlystrict.yml
+index 250540a..716a8bc 100644
+--- a/.github/workflows/daily-hostonlystrict.yml
++++ b/.github/workflows/daily-hostonlystrict.yml
+@@ -44,7 +44,6 @@ jobs:
+                     - "42"
+                     - "50"
+                     - "80"
+-                    - "81"
+                     - "82"
+         container:
+             image: ghcr.io/dracut-ng/${{ matrix.container }}
+diff --git a/.github/workflows/daily-omitsystemd.yml b/.github/workflows/daily-omitsystemd.yml
+index 72a7adb..8a6fdc4 100644
+--- a/.github/workflows/daily-omitsystemd.yml
++++ b/.github/workflows/daily-omitsystemd.yml
+@@ -44,7 +44,6 @@ jobs:
+                     - "60"
+                     - "71"
+                     - "80"
+-                    - "81"
+                     - "82"
+         container:
+             image: ghcr.io/dracut-ng/${{ matrix.container }}
+diff --git a/.github/workflows/integration.yml b/.github/workflows/integration.yml
+index 55847cb..a769539 100644
+--- a/.github/workflows/integration.yml
++++ b/.github/workflows/integration.yml
+@@ -97,7 +97,6 @@ jobs:
+                     - "30"
+                     - "50"
+                     - "80"
+-                    - "81"
+                     - "83"
+                 exclude:
+                     # cpio is not installed on Debian/Ubuntu
+diff --git a/.gitignore b/.gitignore
+index 36acb89..d543e40 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -14,7 +14,6 @@
+ /src/dracut-cpio/target/
+ /src/extractinitrd/extractinitrd
+ /src/install/dracut-install
+-/src/skipcpio/skipcpio
+ /src/util/util
+ /test/*/*.html
+ /test/*/*.log
+diff --git a/Makefile b/Makefile
+index f132e4d..81f248a 100644
+--- a/Makefile
++++ b/Makefile
+@@ -63,7 +63,7 @@ manpages = $(man1pages) $(man5pages) $(man7pages) $(man8pages)
+ 
+ .PHONY: install clean distclean archive test all check AUTHORS CONTRIBUTORS doc
+ 
+-all: dracut.pc dracut-install src/extractinitrd/extractinitrd src/skipcpio/skipcpio dracut-util
++all: dracut.pc dracut-install src/extractinitrd/extractinitrd dracut-util
+ 
+ %.o : %.c
+ 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(KMOD_CFLAGS) $(SYSTEMD_CFLAGS) $(if $(SYSTEMD_LIBS),-DHAVE_SYSTEMD) $< -o $@
+@@ -93,10 +93,6 @@ dracut-install: src/install/dracut-install
+ EXTRACTINITRD_OBJECTS = src/extractinitrd/extractinitrd.o
+ src/extractinitrd/extractinitrd: $(EXTRACTINITRD_OBJECTS)
+ 
+-SKIPCPIO_OBJECTS = src/skipcpio/skipcpio.o
+-skipcpio/skipcpio.o: src/skipcpio/skipcpio.c
+-skipcpio/skipcpio: $(SKIPCPIO_OBJECTS)
+-
+ UTIL_OBJECTS = src/util/util.o
+ util/util.o: src/util/util.c
+ util/util: $(UTIL_OBJECTS)
+@@ -262,9 +258,6 @@ endif
+ 	if [ -f src/extractinitrd/extractinitrd ]; then \
+ 		install -m 0755 src/extractinitrd/extractinitrd $(DESTDIR)$(pkglibdir)/extractinitrd; \
+ 	fi
+-	if [ -f src/skipcpio/skipcpio ]; then \
+-		install -m 0755 src/skipcpio/skipcpio $(DESTDIR)$(pkglibdir)/skipcpio; \
+-	fi
+ 	if [ -f dracut-util ]; then \
+ 		install -m 0755 dracut-util $(DESTDIR)$(pkglibdir)/dracut-util; \
+ 	fi
+@@ -305,7 +298,6 @@ clean:
+ 	$(RM) dracut-*.tar.bz2 dracut-*.tar.xz
+ 	$(RM) dracut-install src/install/dracut-install $(DRACUT_INSTALL_OBJECTS)
+ 	$(RM) src/extractinitrd/extractinitrd $(EXTRACTINITRD_OBJECTS)
+-	$(RM) src/skipcpio/skipcpio $(SKIPCPIO_OBJECTS)
+ 	$(RM) dracut-util src/util/util $(UTIL_OBJECTS)
+ 	$(RM) $(manpages)
+ 	$(RM) dracut.pc
+diff --git a/src/skipcpio/skipcpio.c b/src/skipcpio/skipcpio.c
+deleted file mode 100644
+index afdb165..0000000
+--- a/src/skipcpio/skipcpio.c
++++ /dev/null
+@@ -1,220 +0,0 @@
+-/* skipcpio.c
+-
+-   Copyright (C) 2012 Harald Hoyer
+-   Copyright (C) 2012 Red Hat, Inc.  All rights reserved.
+-
+-   This program is free software: you can redistribute it and/or modify
+-   under the terms of the GNU Lesser General Public License as published by
+-   the Free Software Foundation; either version 2.1 of the License, or
+-   (at your option) any later version.
+-
+-   This program is distributed in the hope that it will be useful, but
+-   WITHOUT ANY WARRANTY; without even the implied warranty of
+-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+-   Lesser General Public License for more details.
+-
+-   You should have received a copy of the GNU Lesser General Public License
+-   along with this program; If not, see <http://www.gnu.org/licenses/>.
+-*/
+-
+-#define PROGRAM_VERSION_STRING "1"
+-
+-#ifndef _GNU_SOURCE
+-#define _GNU_SOURCE
+-#endif
+-
+-#include <errno.h>
+-#include <stdio.h>
+-#include <stdlib.h>
+-#include <string.h>
+-
+-#define CPIO_MAGIC "070701"
+-#define CPIO_MAGIC_LEN (sizeof(CPIO_MAGIC) - 1)
+-
+-#define CPIO_END "TRAILER!!!"
+-#define CPIO_ENDLEN (sizeof(CPIO_END) - 1)
+-
+-#define CPIO_ALIGNMENT 4
+-
+-#define ALIGN_UP(n, a) (((n) + (a) - 1) & (~((a) - 1)))
+-
+-#define pr_err(fmt, ...) \
+-        fprintf(stderr, "ERROR: %s:%d:%s(): " fmt, __FILE__, __LINE__, \
+-                __func__, ##__VA_ARGS__)
+-
+-struct cpio_header {
+-        char c_magic[CPIO_MAGIC_LEN];
+-        char c_ino[8];
+-        char c_mode[8];
+-        char c_uid[8];
+-        char c_gid[8];
+-        char c_nlink[8];
+-        char c_mtime[8];
+-        char c_filesize[8];
+-        char c_dev_maj[8];
+-        char c_dev_min[8];
+-        char c_rdev_maj[8];
+-        char c_rdev_min[8];
+-        char c_namesize[8];
+-        char c_chksum[8];
+-} __attribute__((packed));
+-
+-struct buf_struct {
+-        struct cpio_header h;
+-        char filename[CPIO_ENDLEN];
+-} __attribute__((packed));
+-
+-union buf_union {
+-        struct buf_struct cpio;
+-        char copy_buffer[2048];
+-};
+-
+-static union buf_union buf;
+-
+-int main(int argc, char **argv)
+-{
+-        size_t s;
+-        long pos = 0;
+-        FILE *f = NULL;
+-        char *fname = NULL;
+-        int ret = EXIT_FAILURE;
+-        unsigned long filesize;
+-        unsigned long filename_length;
+-        int debug_output = 0;
+-
+-        if (getenv("DEBUG_SKIPCPIO")) {
+-                if (strcmp(getenv("DEBUG_SKIPCPIO"), "1") == 0) {
+-                        debug_output = 1;
+-                }
+-        }
+-
+-        if (argc != 2) {
+-                fprintf(stderr, "Usage: %s <file>\n", argv[0]);
+-                goto end;
+-        }
+-
+-        fname = argv[1];
+-        f = fopen(fname, "r");
+-        if (f == NULL) {
+-                pr_err("Cannot open file '%s'\n", fname);
+-                goto end;
+-        }
+-
+-        if ((fread(&buf.cpio, sizeof(buf.cpio), 1, f) != 1) ||
+-            ferror(f)) {
+-                pr_err("Read error from file '%s'\n", fname);
+-                goto end;
+-        }
+-
+-        if (fseek(f, 0, SEEK_SET)) {
+-                pr_err("fseek error on file '%s'\n", fname);
+-                goto end;
+-        }
+-
+-        /* check, if this is a cpio archive */
+-        if (memcmp(buf.cpio.h.c_magic, CPIO_MAGIC, CPIO_MAGIC_LEN)) {
+-                if (debug_output) {
+-                        fprintf(stderr, "No CPIO header found.\n");
+-                }
+-                goto cat_rest;
+-        }
+-
+-        do {
+-                // zero string, spilling into next unused field, to use strtol
+-                buf.cpio.h.c_chksum[0] = 0;
+-                filename_length = strtoul(buf.cpio.h.c_namesize, NULL, 16);
+-                pos = ALIGN_UP(pos + sizeof(struct cpio_header) + filename_length, CPIO_ALIGNMENT);
+-
+-                // zero string, spilling into next unused field, to use strtol
+-                buf.cpio.h.c_dev_maj[0] = 0;
+-                filesize = strtoul(buf.cpio.h.c_filesize, NULL, 16);
+-                pos = ALIGN_UP(pos + filesize, CPIO_ALIGNMENT);
+-
+-                if (filename_length == (CPIO_ENDLEN + 1)
+-                    && strncmp(buf.cpio.filename, CPIO_END, CPIO_ENDLEN) == 0) {
+-                        if (fseek(f, pos, SEEK_SET)) {
+-                                pr_err("fseek\n");
+-                                goto end;
+-                        }
+-                        break;
+-                }
+-
+-                if (fseek(f, pos, SEEK_SET)) {
+-                        pr_err("fseek\n");
+-                        goto end;
+-                }
+-
+-                if ((fread(&buf.cpio, sizeof(buf.cpio), 1, f) != 1) ||
+-                    ferror(f)) {
+-                        pr_err("fread\n");
+-                        goto end;
+-                }
+-
+-                if (memcmp(buf.cpio.h.c_magic, CPIO_MAGIC, CPIO_MAGIC_LEN)) {
+-                        pr_err("Corrupt CPIO archive!\n");
+-                        goto end;
+-                }
+-        } while (!feof(f));
+-
+-        if (feof(f)) {
+-                /* CPIO_END not found, just cat the whole file */
+-                if (fseek(f, 0, SEEK_SET)) {
+-                        pr_err("fseek\n");
+-                        goto end;
+-                }
+-        } else {
+-                /* skip zeros */
+-                do {
+-                        size_t i;
+-
+-                        s = fread(buf.copy_buffer, 1, sizeof(buf.copy_buffer) - 1, f);
+-                        if (ferror(f)) {
+-                                pr_err("fread\n");
+-                                goto end;
+-                        }
+-
+-                        for (i = 0; (i < s) && (buf.copy_buffer[i] == 0); i++) ;
+-
+-                        if (buf.copy_buffer[i]) {
+-                                pos += i;
+-
+-                                if (fseek(f, pos, SEEK_SET)) {
+-                                        pr_err("fseek\n");
+-                                        goto end;
+-                                }
+-                                if (debug_output) {
+-                                        fprintf(stderr, "CPIO data and any trailing zeros end at position %ld.\n", (pos-1));
+-                                }
+-                                break;
+-                        }
+-
+-                        pos += s;
+-                } while (!feof(f));
+-        }
+-
+-cat_rest:
+-        /* cat out the rest */
+-        while (!feof(f)) {
+-                s = fread(buf.copy_buffer, 1, sizeof(buf.copy_buffer), f);
+-                if (ferror(f)) {
+-                        pr_err("fread\n");
+-                        goto end;
+-                }
+-
+-                errno = 0;
+-                if (fwrite(buf.copy_buffer, 1, s, stdout) != s) {
+-                        if (errno != EPIPE)
+-                                pr_err("fwrite\n");
+-                        goto end;
+-                }
+-        }
+-
+-        ret = EXIT_SUCCESS;
+-
+-end:
+-        if (f) {
+-                fclose(f);
+-        }
+-
+-        return ret;
+-}
+diff --git a/test/TEST-81-SKIPCPIO/Makefile b/test/TEST-81-SKIPCPIO/Makefile
+deleted file mode 100644
+index 2dcab81..0000000
+--- a/test/TEST-81-SKIPCPIO/Makefile
++++ /dev/null
+@@ -1 +0,0 @@
+--include ../Makefile.testdir
+diff --git a/test/TEST-81-SKIPCPIO/test.sh b/test/TEST-81-SKIPCPIO/test.sh
+deleted file mode 100755
+index fea7572..0000000
+--- a/test/TEST-81-SKIPCPIO/test.sh
++++ /dev/null
+@@ -1,124 +0,0 @@
+-#!/usr/bin/env bash
+-# This file is part of dracut.
+-# SPDX-License-Identifier: GPL-2.0-or-later
+-set -eu
+-
+-# shellcheck disable=SC2034
+-TEST_DESCRIPTION="test skipcpio"
+-
+-test_check() {
+-    if ! 3cpio --help 2> /dev/null | grep -q -- --create && ! command -v cpio &> /dev/null; then
+-        echo "Neither 3cpio >= 0.10 nor cpio are available."
+-        return 1
+-    fi
+-
+-    (command -v find && command -v diff) &> /dev/null
+-}
+-
+-cpio_create() {
+-    if 3cpio --help 2> /dev/null | grep -q -- --create; then
+-        find . | sort | 3cpio --create
+-    else
+-        find . -print0 | sort -z | cpio -o --null -H newc
+-    fi
+-}
+-
+-cpio_list_first() {
+-    local file="$1"
+-    if 3cpio --help 2> /dev/null | grep -q -- --parts; then
+-        3cpio --list --parts 1 "$file"
+-    else
+-        cpio --extract --quiet --list < "$file"
+-    fi
+-}
+-
+-skipcpio_simple() {
+-    mkdir -p "$CPIO_TESTDIR/skipcpio_simple/first_archive"
+-    pushd "$CPIO_TESTDIR/skipcpio_simple/first_archive"
+-
+-    for ((i = 0; i < 3; i++)); do
+-        echo "first archive file $i" >> ./"$i"
+-    done
+-    cpio_create > "$CPIO_TESTDIR/skipcpio_simple.cpio"
+-    popd
+-
+-    mkdir -p "$CPIO_TESTDIR/skipcpio_simple/second_archive"
+-    pushd "$CPIO_TESTDIR/skipcpio_simple/second_archive"
+-
+-    for ((i = 10; i < 13; i++)); do
+-        echo "second archive file $i" >> ./"$i"
+-    done
+-
+-    cpio_create >> "$CPIO_TESTDIR/skipcpio_simple.cpio"
+-    popd
+-
+-    cpio_list_first "$CPIO_TESTDIR/skipcpio_simple.cpio" \
+-        > "$CPIO_TESTDIR/skipcpio_simple.list"
+-    cat << EOF | diff - "$CPIO_TESTDIR/skipcpio_simple.list"
+-.
+-0
+-1
+-2
+-EOF
+-
+-    if [ "$PKGLIBDIR" = "$basedir" ]; then
+-        skipcpio_path="${PKGLIBDIR}/src/skipcpio"
+-    else
+-        skipcpio_path="${PKGLIBDIR}"
+-    fi
+-    "$skipcpio_path"/skipcpio "$CPIO_TESTDIR/skipcpio_simple.cpio" \
+-        > "$CPIO_TESTDIR/skipped.cpio"
+-    cpio_list_first "$CPIO_TESTDIR/skipped.cpio" > "$CPIO_TESTDIR/skipcpio_simple.list"
+-    cat << EOF | diff - "$CPIO_TESTDIR/skipcpio_simple.list"
+-.
+-10
+-11
+-12
+-EOF
+-
+-    DEBUG_SKIPCPIO=1 "$skipcpio_path"/skipcpio "$CPIO_TESTDIR/skipcpio_simple.cpio" \
+-        > /dev/null 2> "$CPIO_TESTDIR/debug.log"
+-    if [ ! -s "$CPIO_TESTDIR/debug.log" ]; then
+-        echo "Debug log file is missing or empty."
+-        return 1
+-    fi
+-    if ! grep -q "CPIO data and any trailing zeros end at position" "$CPIO_TESTDIR/debug.log"; then
+-        echo "Expected debug message not found in log."
+-        return 1
+-    fi
+-
+-    truncate -s 1K "$CPIO_TESTDIR/empty.img"
+-    DEBUG_SKIPCPIO=1 "$skipcpio_path"/skipcpio "$CPIO_TESTDIR/empty.img" > /dev/null \
+-        2> "$CPIO_TESTDIR/debug.log"
+-    if [ ! -s "$CPIO_TESTDIR/debug.log" ]; then
+-        echo "Debug log file is missing or empty."
+-        return 1
+-    fi
+-    if ! grep -q "No CPIO header found." "$CPIO_TESTDIR/debug.log"; then
+-        echo "Expected debug message not found in log."
+-        return 1
+-    fi
+-}
+-
+-test_run() {
+-    set -x
+-    set -e
+-
+-    skipcpio_simple
+-
+-    return 0
+-}
+-
+-test_setup() {
+-    CPIO_TESTDIR=$(mktemp --directory -p "$TESTDIR" cpio-test.XXXXXXXXXX)
+-    export CPIO_TESTDIR
+-    return 0
+-}
+-
+-test_cleanup() {
+-    [ -d "${CPIO_TESTDIR-}" ] && rm -rf "$CPIO_TESTDIR"
+-    return 0
+-}
+-
+-# shellcheck disable=SC1090
+-. "$testdir"/test-functions

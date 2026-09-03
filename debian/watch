@@ -1,0 +1,6 @@
+Version: 5
+Template: Github
+Owner: dracut-ng
+Project: dracut
+Download-Url-Mangle: s%api\.github\.com/repos/([^/]+/[^/]+)/git/refs/tags/@ANY_VERSION@%github.com/$1/archive/refs/tags/$2.tar.gz%
+Pgp-Sig-Url-Mangle: s%archive/refs/tags/@ANY_VERSION@.tar.gz$%releases/download/$1/@PACKAGE@-$1.tar.gz.sig%
