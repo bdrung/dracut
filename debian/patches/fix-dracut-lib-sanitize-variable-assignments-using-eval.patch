@@ -1,0 +1,44 @@
+From: Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+Date: Tue, 21 Jul 2026 13:37:11 +0200
+Subject: fix(dracut-lib): sanitize variable assignments using eval
+
+`splitsep()` uses `eval "$1='${tmp}'"` and `eval "$1='$str'"` to assign values
+to caller-named variables. A single quote in the value breaks out of the
+assignment.
+
+`export_n()` uses `eval "$var=\"$val\""` to re-assign an unexported variable. A
+double quote in the value breaks out of the assignment.
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/4d2d812bed056ca2c671612d960911b075c99dd9
+---
+ modules.d/80base/dracut-lib.sh | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/modules.d/80base/dracut-lib.sh b/modules.d/80base/dracut-lib.sh
+index e8a14b1..e72496b 100755
+--- a/modules.d/80base/dracut-lib.sh
++++ b/modules.d/80base/dracut-lib.sh
+@@ -342,12 +342,12 @@ splitsep() {
+ 
+     while [ -n "$str" ] && [ "$#" -gt 1 ]; do
+         tmp="${str%%"$sep"*}"
+-        eval "$1='${tmp}'"
++        eval "$1=\${tmp}"
+         str="${str#"$tmp"}"
+         str="${str#"$sep"}"
+         shift
+     done
+-    [ -n "$str" ] && [ -n "$1" ] && eval "$1='$str'"
++    [ -n "$str" ] && [ -n "$1" ] && eval "$1=\${str}"
+     debug_on
+     return 0
+ }
+@@ -952,7 +952,7 @@ export_n() {
+     for var in "$@"; do
+         eval "val=\$$var"
+         unset "$var"
+-        [ -n "$val" ] && eval "$var=\"$val\""
++        [ -n "$val" ] && eval "$var=\${val}"
+     done
+ }
+ 
