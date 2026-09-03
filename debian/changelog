@@ -1,3 +1,24 @@
+dracut (110-11ubuntu0.1) resolute-security; urgency=high
+
+  * Security related fixes:
+    - fix(overlayfs-crypt): prevent eval injection in parse_overlay_opts()
+    - feat(base): add escape function implementing printf %q
+    - fix(dracut-lib): sanitize variable assignments using eval
+    - fix(systemd-networkd): escape values from DHCP options
+    - fix(iscsi): normalize initiator and target names
+    - fix(net-lib): validate iSCSI LUN parameters
+    - fix(net-lib): normalize iSCSI target names on the iqn./eui./naa. path
+    - fix(iscsi): do not source the boot-time net-lib.sh into module-setup.sh
+    - fix(iscsi): normalize the target name in the generated netroot=
+    - fix(dracut): --remove globbing does not work
+    - fix(dracut): --remove allows removing files from the host filesystem
+    - refactor(net-lib): use strip_non_digits() to validate iSCSI LUN parameters
+    - fix(net-lib): validate iSCSI port parameters
+    - fix(base): sanitize message written by die() to the emergency hook
+    - fix(iscsi): sanitize netroot= value passed to initqueue scripts
+
+ -- Benjamin Drung <bdrung@ubuntu.com>  Thu, 03 Sep 2026 21:27:25 +0200
+
 dracut (110-11) unstable; urgency=medium
 
   * Cherry-pick upstream commits:
