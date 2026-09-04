@@ -28,7 +28,7 @@ Depends: 3cpio | cpio,
          mount,
          systemd-sysv | initscripts | sysvinit-core,
          udev
-Recommends: binutils, console-setup, systemd, zstd
+Recommends: binutils, busybox | busybox-static, console-setup, systemd, zstd
 Suggests: cryptsetup,
           dmsetup,
           isomd5sum,
@@ -124,7 +124,8 @@ Description: dracut is an event driven initramfs infrastructure (network modules
 Package: dracut-test
 Architecture: alpha amd64 arm64 loong64 ppc64 ppc64el riscv64 s390x sparc64
 Multi-Arch: foreign
-Depends: dracut-core,
+Depends: busybox | busybox-static,
+         dracut-core,
          ipxe-qemu,
          linux-image-generic,
          mount,
