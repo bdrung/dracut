@@ -6,12 +6,13 @@ Restrictions: needs-root, superficial
 Tests: 10-basic,
        13-sysroot,
        14-hooks,
+       15-busybox,
        40-systemd,
        42-systemd-initrd,
        43-kernel-install
 Architecture: !armel !armhf !i386
 Restrictions: allow-stderr, needs-root
-Depends: dracut-test
+Depends: busybox, dracut-test
 
 Tests: 11-usr-mount
 Architecture: !armel !armhf !i386 !riscv64
@@ -30,6 +31,12 @@ Depends: dracut-test,
          systemd-cryptsetup,
          systemd-tpm,
          systemd-ukify
+
+Test-Command: debian/tests/15-busybox
+Features: test-name=15-busybox-static
+Architecture: !armel !armhf !i386
+Restrictions: allow-stderr, needs-root
+Depends: busybox-static, dracut-test
 
 Tests: 20-storage, 26-enc-raid-lvm
 Architecture: !armel !armhf !i386 !riscv64
