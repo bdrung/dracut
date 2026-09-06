@@ -58,10 +58,6 @@ fix-busybox-do-not-install-sulogin-applet.patch
 fix-busybox-do-not-install-blkid-unconditionally.patch
 feat-dracut-add-prefer-option.patch
 feat-debian.conf-prefer-busybox.patch
-fix-nbd-use-usr-sbin-nbd-client-for-CONFIG_FEATURE_PREFER.patch
-fix-dracut-systemd-use-sbin-sulogin-for-CONFIG_FEATURE_PR.patch
-fix-use-sbin-losetup-for-CONFIG_FEATURE_PREFER_APPLETS.patch
-fix-use-bin-mount-for-CONFIG_FEATURE_PREFER_APPLETS.patch
 fix-dracut-export-prefer_dracutmodules-to-be-used-in-drac.patch
 fix-bluetooth-do-not-warn-if-this-module-is-included-via-.patch
 docs-cli-formatting-grammar-fix-for-DRACUT_INSTALL_LOG_-T.patch
