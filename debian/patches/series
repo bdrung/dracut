@@ -1,6 +1,2 @@
-fix-nbd-use-usr-sbin-nbd-client-for-CONFIG_FEATURE_PREFER.patch
-fix-dracut-systemd-use-sbin-sulogin-for-CONFIG_FEATURE_PR.patch
-fix-use-sbin-losetup-for-CONFIG_FEATURE_PREFER_APPLETS.patch
-fix-use-bin-mount-for-CONFIG_FEATURE_PREFER_APPLETS.patch
 fix-systemd-networkd-populate-resolv.conf-via-initrd-reso.patch
 fix-systemd-networkd-order-wait-online-before-nss-lookup..patch
