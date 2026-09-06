@@ -1,0 +1,30 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Wed, 22 Jul 2026 11:40:04 +0200
+Subject: fix(mdraid): escape slash in sed regular expression
+
+`sed` from busybox treats the `/` from `[[:alpha:]/]` inside
+`/pattern/d` as the closing delimiter for the match pattern, rather than
+a character inside the bracket class:
+
+```
+sed: bad regex '(RUN|IMPORT\{program\})\+?="[[:alpha:]': Missing ']'
+```
+
+Escape the slash in sed regular expression.
+---
+ modules.d/70mdraid/module-setup.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/modules.d/70mdraid/module-setup.sh b/modules.d/70mdraid/module-setup.sh
+index 0f6b76c..1a888cb 100755
+--- a/modules.d/70mdraid/module-setup.sh
++++ b/modules.d/70mdraid/module-setup.sh
+@@ -83,7 +83,7 @@ install() {
+     # assembled
+     # shellcheck disable=SC2016
+     if [ -f "${initdir}${udevdir}/rules.d/64-md-raid-assembly.rules" ]; then
+-        sed -i -r -e '/(RUN|IMPORT\{program\})\+?="[[:alpha:]/]*mdadm[[:blank:]]+(--incremental|-I)[[:blank:]]+(--export )?(\$env\{DEVNAME\}|\$devnode)/d' \
++        sed -i -r -e '/(RUN|IMPORT\{program\})\+?="[[:alpha:]\/]*mdadm[[:blank:]]+(--incremental|-I)[[:blank:]]+(--export )?(\$env\{DEVNAME\}|\$devnode)/d' \
+             "${initdir}${udevdir}/rules.d/64-md-raid-assembly.rules"
+     fi
+ 

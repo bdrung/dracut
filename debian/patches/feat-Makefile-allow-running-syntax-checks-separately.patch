@@ -1,0 +1,46 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Thu, 23 Jul 2026 13:11:50 +0200
+Subject: feat(Makefile): allow running syntax checks separately
+
+Split the syntax check `syncheck` into one check for bash and one for
+shellcheck to allow running these checks separately.
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/3a489b1c1d3f3cc8141428b74e617eea7ce7e9d9
+---
+ Makefile | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index d7cab68..5d08548 100644
+--- a/Makefile
++++ b/Makefile
+@@ -309,7 +309,8 @@ clean:
+ distclean: clean
+ 	$(RM) Makefile.inc
+ 
+-syncheck:
++.PHONY: bashcheck
++bashcheck:
+ 	@ret=0;for i in dracut-initramfs-restore.sh modules.d/*/*.sh; do \
+                 [ "$${i##*/}" = "module-setup.sh" ] && continue; \
+                 read line < "$$i"; [ "$${line#*bash*}" != "$$line" ] && continue; \
+@@ -320,13 +321,17 @@ syncheck:
+ 	@ret=0;for i in *.sh modules.d/*/*.sh modules.d/*/module-setup.sh; do \
+ 		[ $$V ] && echo "bash syntax check: $$i"; bash -n "$$i" ; ret=$$(($$ret+$$?)); \
+ 	done;exit $$ret
+-ifeq ($(HAVE_SHELLCHECK),yes)
++
++.PHONY: shellcheck
++shellcheck:
+ ifeq ($(HAVE_SHFMT),yes)
+ 	shellcheck $$(shfmt -f *)
+ else
+ 	find * -name '*.sh' -print0 | xargs -0 shellcheck
+ endif
+-endif
++
++.PHONY: syncheck
++syncheck: bashcheck $(if $(filter yes,$(HAVE_SHELLCHECK)),shellcheck)
+ 
+ check: all
+ 	@$(MAKE) -C test check

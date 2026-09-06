@@ -1,0 +1,51 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Thu, 23 Jul 2026 13:18:06 +0200
+Subject: feat: check shellcode to support busybox
+
+Explicitly check the shellcode to work with busybox to also catch cases
+like 'local' is only valid in functions (SC2168).
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/25bedc7528d9c1915c9a61e356a2c62433d03883
+---
+ Makefile             | 10 +++++++++-
+ test/filter-out-bash |  9 +++++++++
+ 2 files changed, 18 insertions(+), 1 deletion(-)
+ create mode 100755 test/filter-out-bash
+
+diff --git a/Makefile b/Makefile
+index 5d08548..a027577 100644
+--- a/Makefile
++++ b/Makefile
+@@ -330,8 +330,16 @@ else
+ 	find * -name '*.sh' -print0 | xargs -0 shellcheck
+ endif
+ 
++.PHONY: shellcheck-busybox
++shellcheck-busybox:
++ifeq ($(HAVE_SHFMT),yes)
++	shellcheck -s busybox $$(shfmt -f * | test/filter-out-bash)
++else
++	find * -name '*.sh' | test/filter-out-bash | xargs shellcheck -s busybox
++endif
++
+ .PHONY: syncheck
+-syncheck: bashcheck $(if $(filter yes,$(HAVE_SHELLCHECK)),shellcheck)
++syncheck: bashcheck $(if $(filter yes,$(HAVE_SHELLCHECK)),shellcheck shellcheck-busybox)
+ 
+ check: all
+ 	@$(MAKE) -C test check
+diff --git a/test/filter-out-bash b/test/filter-out-bash
+new file mode 100755
+index 0000000..8e4bd65
+--- /dev/null
++++ b/test/filter-out-bash
+@@ -0,0 +1,9 @@
++#!/bin/sh
++set -eu
++
++while read -r script; do
++    if head -n 1 "$script" | grep -q bash; then
++        continue
++    fi
++    echo "$script"
++done
