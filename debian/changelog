@@ -1,3 +1,50 @@
+dracut (110-11ubuntu0.2) resolute; urgency=medium
+
+  * Cherry-pick several upstream commits:
+    - Support busybox applets
+      + fix(crypt): do not call return to exit a systemd generator
+      + refactor(crypt): use function in crypt-cleanup.sh
+      + fix(lunmask): use function in parse-lunmask.sh
+      + feat(Makefile): allow running syntax checks separately
+      + feat: check shellcode to support busybox
+      + fix(dracut): support chmod applet from busybox
+      + fix(mdraid): escape slash in sed regular expression
+      + fix(convertfs): support find applet from busybox
+      + fix(lsinitrd): use "find -exec ls" instead of "find -ls"
+      + fix(dracut-functions): support head applet from busybox
+      + fix(shutdown): make "timeout" call busybox-compatible
+      + test: support mktemp applet from busybox
+      + fix(dmsquash-live-autooverlay): support grep applet from busybox
+      + test(FULL-SYSTEMD): avoid copying /usr twice
+      + fix(base): support readlink applet from busybox
+      + fix(dmsquash-live): support umount applet from busybox
+      + fix(lvmmerge): support umount applet from busybox
+      + fix(selinux): support umount applet from busybox
+    - Use busybox instead of coreutils/rust-coreutils in initrd (LP: #2150657)
+      + fix(busybox): use full path provided by busybox --list-full
+      + fix(busybox): do not rely on CONFIG_FEATURE_INSTALLER=y
+      + test: provide default test_setup hook
+      + feat(busybox): run before 80base so applets replace host binaries
+      + fix(busybox): do not install blkid if udev rules need -o
+      + fix(busybox): do not install mount applet
+      + test(BUSYBOX): use initramfs.testing as initrd name
+      + test(BUSYBOX): also test booting
+      + fix(busybox): do not install mke2fs applet
+      + fix(busybox): do not install nbd-client applet
+      + fix(busybox): do not install losetup applet
+      + fix(busybox): do not install sulogin applet
+      + fix(busybox): do not install blkid unconditionally
+      + feat(dracut): add --prefer option
+      + feat(debian.conf): prefer busybox
+  * feat(busybox): use busybox-initramfs
+  * Renumber Dracut module 81busybox to 10busybox
+  * dracut-core:
+    - Recommend busybox-initramfs
+    - Declare breaking incompatible busybox-initramfs << 1:1.37.0-7ubuntu1.1~
+  * Add 15-busybox autopkgtest
+
+ -- Benjamin Drung <bdrung@ubuntu.com>  Mon, 07 Sep 2026 00:50:59 +0200
+
 dracut (110-11ubuntu0.1) resolute-security; urgency=high
 
   * Security related fixes:
