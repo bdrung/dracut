@@ -84,3 +84,4 @@ fix-busybox-do-not-install-sulogin-applet.patch
 fix-busybox-do-not-install-blkid-unconditionally.patch
 feat-dracut-add-prefer-option.patch
 feat-debian.conf-prefer-busybox.patch
+feat-busybox-use-busybox-initramfs.patch
