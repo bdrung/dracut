@@ -40,7 +40,8 @@ Suggests: cryptsetup,
           parted,
           squashfs-tools,
           systemd-cryptsetup
-Breaks: dracut-live (<< 109-10~),
+Breaks: busybox-initramfs (<< 1:1.37.0-7ubuntu1.1~),
+        dracut-live (<< 109-10~),
         dracut-network (<< 057+157-2),
         dracut-squash,
         rust-coreutils (<< 0.5.0)
