@@ -1,0 +1,29 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Mon, 20 Jul 2026 16:00:57 +0200
+Subject: feat(base): add escape function implementing printf %q
+
+In POSIX shell, `printf %q` is undefined. Add an `escape` function to
+dracut-lib.sh to implement `printf %q` in POSIX shell.
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/207c339728eff81127469c2f6fe106447c781009
+---
+ modules.d/80base/dracut-lib.sh | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/modules.d/80base/dracut-lib.sh b/modules.d/80base/dracut-lib.sh
+index 21322d7..e8a14b1 100755
+--- a/modules.d/80base/dracut-lib.sh
++++ b/modules.d/80base/dracut-lib.sh
+@@ -27,6 +27,12 @@ debug_on() {
+     [ "$RD_DEBUG" = "yes" ] && set -x
+ }
+ 
++# printf %q implementation for POSIX shell
++# Safe usage: printf "variable='%s'\n" "$(escape "$value")"
++escape() {
++    printf '%s' "$1" | sed -e "s/'/'\\\\''/g"
++}
++
+ # returns OK if $1 contains literal string $2 (and isn't empty)
+ strstr() {
+     [ "${1##*"$2"*}" != "$1" ]

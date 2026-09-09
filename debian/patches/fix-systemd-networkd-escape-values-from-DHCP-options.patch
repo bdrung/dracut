@@ -1,0 +1,46 @@
+From: Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+Date: Tue, 21 Jul 2026 11:37:27 +0200
+Subject: fix(systemd-networkd): escape values from DHCP options
+
+Although systemd-networkd filters invalid values for DHCP options before writing
+them to lease files, it's a good practice to escape values read from lease files
+before writing them to ".dhcpopts" files, because ".dhcpopts" files are sourced
+as a shell script in multiple parts [1][2][3].
+
+Same motivation as e509c638e68a8e3cae446d1a4f9f86e3aa6e7a99, but for
+systemd-networkd.
+
+Fixes: 0e1e78711502347412e2c0a0621773f034332499
+Fixes: 7c57b1cccd4100351da5258ac6a22e07608a5e85
+Fixes: GHSA-x37p-6hhc-6628
+
+[1] https://github.com/dracut-ng/dracut/blob/02e7ae10830d1268f1acdf879ef14d5b6bc89ac3/modules.d/45net-lib/net-lib.sh#L139
+[2] https://github.com/dracut-ng/dracut/blob/02e7ae10830d1268f1acdf879ef14d5b6bc89ac3/modules.d/45net-lib/netroot.sh#L44
+[3] https://github.com/dracut-ng/dracut/blob/02e7ae10830d1268f1acdf879ef14d5b6bc89ac3/modules.d/74nfs/nfs-lib.sh#L109-L112
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/b456aee2fc61c47db0d9a408634820969e7359df
+---
+ modules.d/11systemd-networkd/networkd-run.sh | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/modules.d/11systemd-networkd/networkd-run.sh b/modules.d/11systemd-networkd/networkd-run.sh
+index b14a43f..9c19e88 100755
+--- a/modules.d/11systemd-networkd/networkd-run.sh
++++ b/modules.d/11systemd-networkd/networkd-run.sh
+@@ -12,10 +12,12 @@ for ifpath in /sys/class/net/*; do
+         leases_file="/run/systemd/netif/leases/$(cat "$ifpath"/ifindex)"
+         dhcpopts_file="/tmp/dhclient.${ifname}.dhcpopts"
+         if [ -r "$leases_file" ]; then
+-            grep -E "^(NEXT_SERVER|ROOT_PATH)=" "$leases_file" \
+-                | sed -e "s/NEXT_SERVER=/new_next_server='/" \
+-                    -e "s/ROOT_PATH=/new_root_path='/" \
+-                    -e "s/$/'/" > "$dhcpopts_file" || true
++            {
++                new_next_server="$(sed -n 's/^NEXT_SERVER=//p' "$leases_file")"
++                [ -n "$new_next_server" ] && printf "new_next_server='%s'\n" "$(escape "$new_next_server")"
++                new_root_path="$(sed -n 's/^ROOT_PATH=//p' "$leases_file")"
++                [ -n "$new_root_path" ] && printf "new_root_path='%s'\n" "$(escape "$new_root_path")"
++            } > "$dhcpopts_file"
+         fi
+ 
+         source_hook initqueue/online "$ifname"

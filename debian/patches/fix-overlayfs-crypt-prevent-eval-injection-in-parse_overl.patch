@@ -1,0 +1,33 @@
+From: Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+Date: Wed, 27 May 2026 08:44:00 +0200
+Subject: fix(overlayfs-crypt): prevent eval injection in parse_overlay_opts()
+
+parse_overlay_opts() used eval "${ns}${key}='${val}'" to assign
+parsed options from the rd.overlay.crypt kernel cmdline parameter.
+A single quote in the value breaks out of the assignment and allows
+arbitrary command execution.
+
+Fixes: GHSA-wr6r-5whr-98qx
+Co-developed-by: Claude Opus 4.6 <noreply@anthropic.com>
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/584e95bea90cedd12d9190e9b09bb45e1aa26b08
+---
+ modules.d/71overlayfs-crypt/overlayfs-crypt-lib.sh | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/modules.d/71overlayfs-crypt/overlayfs-crypt-lib.sh b/modules.d/71overlayfs-crypt/overlayfs-crypt-lib.sh
+index d23ac8d..cc7927f 100755
+--- a/modules.d/71overlayfs-crypt/overlayfs-crypt-lib.sh
++++ b/modules.d/71overlayfs-crypt/overlayfs-crypt-lib.sh
+@@ -17,10 +17,11 @@ parse_overlay_opts() {
+     for tok in "$@"; do
+         key="${tok%%=*}"
+         val="${tok#*=}"
++        # shellcheck disable=SC2034
+         [ "$key" = "$tok" ] && val=""
+         case "$key" in
+             mapname | fstype | mkfs | timeout)
+-                eval "${ns}${key}='${val}'"
++                eval "${ns}${key}=\${val}"
+                 _RET="${_RET:+$_RET }${ns}${key}"
+                 ;;
+             *)

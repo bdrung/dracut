@@ -1,3 +1,67 @@
+dracut (110-11ubuntu0.1) resolute-security; urgency=medium
+
+  * SECURITY UPDATE: Several security issues
+    - debian/patches/fix-base-sanitize-message-written-by-die-to-the-emergency.patch:
+      sanitize message written by die() to the emergency hook at
+      modules.d/80base/dracut-lib.sh
+    - CVE-2026-15816
+    - debian/patches/fix-overlayfs-crypt-prevent-eval-injection-in-parse_overl.patch:
+      prevent eval injection in parse_overlay_opts() at
+      modules.d/71overlayfs-crypt/overlayfs-crypt-lib.sh
+    - No CVE number
+    - debian/patches/feat-base-add-escape-function-implementing-printf-q.patch:
+      add escape function implementing printf %q at
+      modules.d/80base/dracut-lib.sh
+    - No CVE number
+    - debian/patches/fix-dracut-lib-sanitize-variable-assignments-using-eval.patch:
+      sanitize variable assignments using eval at
+      modules.d/80base/dracut-lib.sh
+    - No CVE number
+    - debian/patches/fix-systemd-networkd-escape-values-from-DHCP-options.patch:
+      escape values from DHCP options at
+      modules.d/11systemd-networkd/networkd-run.sh
+    - No CVE number
+    - debian/patches/fix-iscsi-normalize-initiator-and-target-names.patch:
+      normalize initiator and target names at
+      modules.d/45net-lib/net-lib.sh, modules.d/74iscsi/iscsiroot.sh,
+      modules.d/74iscsi/module-setup.sh, modules.d/74iscsi/parse-iscsiroot.sh
+    - No CVE number
+    - debian/patches/fix-net-lib-validate-iSCSI-LUN-parameters.patch:
+      validate iSCSI LUN parameters at modules.d/45net-lib/net-lib.sh
+    - No CVE number
+    - debian/patches/fix-net-lib-normalize-iSCSI-target-names-on-the-iqn.-eui..patch:
+      normalize iSCSI target names on the iqn./eui./naa. path at
+      modules.d/45net-lib/net-lib.sh
+    - No CVE number
+    - debian/patches/fix-iscsi-do-not-source-the-boot-time-net-lib.sh-into-mod.patch:
+      do not source the boot-time net-lib.sh into module-setup.sh at
+      dracut-functions.sh, modules.d/74iscsi/module-setup.sh
+    - No CVE number
+    - debian/patches/fix-iscsi-normalize-the-target-name-in-the-generated-netr.patch:
+      normalize the target name in the generated netroot= line at
+      modules.d/74iscsi/module-setup.sh
+    - No CVE number
+    - debian/patches/fix-dracut-remove-globbing-does-not-work.patch:
+      --remove globbing does not work at dracut.sh
+    - No CVE number
+    - debian/patches/fix-dracut-remove-allows-removing-files-from-the-host-fil.patch:
+      --remove allows removing files from the host filesystem at dracut.sh
+    - No CVE number
+    - debian/patches/refactor-net-lib-use-strip_non_digits-to-validate-iSCSI-L.patch:
+      use strip_non_digits() to validate iSCSI LUN parameters at
+      modules.d/45net-lib/net-lib.sh
+    - No CVE number
+    - debian/patches/fix-net-lib-validate-iSCSI-port-parameters.patch:
+      validate iSCSI port parameters at modules.d/45net-lib/net-lib.sh
+    - No CVE number
+    - debian/patches/fix-iscsi-sanitize-netroot-value-passed-to-initqueue-scri.patch:
+      sanitize netroot= value passed to initqueue scripts at
+      modules.d/74iscsi/parse-iscsiroot.sh
+    - No CVE number
+  * Thanks Benjamin Drung for the fixes
+
+ -- Leonidas Da Silva Barbosa <leo.barbosa@canonical.com>  Wed, 09 Sep 2026 10:09:34 -0300
+
 dracut (110-11) unstable; urgency=medium
 
   * Cherry-pick upstream commits:
