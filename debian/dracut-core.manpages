@@ -6,6 +6,7 @@ usr/share/man/man7/dracut.kernel.7
 usr/share/man/man7/dracut.modules.7
 usr/share/man/man8/dracut-catimages.8
 usr/share/man/man8/dracut-cmdline.service.8
+usr/share/man/man8/dracut-extractinitrd.8
 usr/share/man/man8/dracut-initqueue.service.8
 usr/share/man/man8/dracut-mount.service.8
 usr/share/man/man8/dracut-pre-mount.service.8
