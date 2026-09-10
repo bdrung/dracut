@@ -3,6 +3,7 @@ debian/source_dracut.py         usr/share/apport/package-hooks
 etc/dracut.conf                 etc
 usr/bin/dracut
 usr/bin/dracut-catimages
+usr/bin/dracut-extractinitrd
 usr/bin/lsinitrd
 usr/lib/dracut/dracut-functions
 usr/lib/dracut/dracut-functions.sh
@@ -16,7 +17,6 @@ usr/lib/dracut/dracut.conf.d/hostonly
 usr/lib/dracut/dracut.conf.d/ima
 usr/lib/dracut/dracut.conf.d/no-network
 usr/lib/dracut/dracut.conf.d/rescue
-usr/lib/dracut/extractinitrd
 usr/lib/dracut/modules.d/10bash
 usr/lib/dracut/modules.d/10busybox
 usr/lib/dracut/modules.d/10dash
