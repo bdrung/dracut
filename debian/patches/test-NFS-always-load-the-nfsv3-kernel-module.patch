@@ -1,0 +1,127 @@
+From: Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+Date: Wed, 2 Sep 2026 16:11:53 +0200
+Subject: test(NFS): always load the nfsv3 kernel module
+
+After debugging issue #2688 (hang after switch root in NFSv4 root), we can see
+that nfs_layout_flexfiles can pull in an NFSv3 data server at any time.
+
+```
+Pivoting root worked.
+[   61.872297][    T1] ------------[ cut here ]------------
+[   61.873713][    T1] !get_v3_ds_connect
+[   61.873715][    T1] WARNING: fs/nfs/pnfs_nfs.c:792 at nfs4_pnfs_ds_connect+0x47e/0x490 [nfsv4], CPU#0: systemd/1
+[   61.878015][    T1] Modules linked in: nfs_layout_flexfiles rpcsec_gss_krb5 krb5 auth_rpcgss nfsv4 dns_resolver nfs lockd grace netfs
+af_packet aesni_intel ahci libahci gf128mul virtio_net rfkill i6300esb libata net_failover virtio_scsi failover button serio_raw iTCO_wdt
+intel_pmc_bxt sunrpc dm_mirror dm_region_hash dm_log i2c_dev msr dm_multipath dm_mod sd_mod scsi_dh_emc scsi_dh_rdac scsi_dh_alua sg
+scsi_mod scsi_common efivarfs dmi_sysfs qemu_fw_cfg virtiofs fuse virtio_rng
+[   61.891584][    T1] CPU: 0 UID: 0 PID: 1 Comm: systemd Tainted: G        W           7.2.2-1-default #1 PREEMPT(full) openSUSE
+Tumbleweed  bc7dc2f166d6b41995debd78d75c9e4bbcfbc2e3
+[   61.895581][    T1] Tainted: [W]=WARN
+[   61.896572][    T1] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS unknown 02/02/2022
+[   61.898835][    T1] RIP: 0010:nfs4_pnfs_ds_connect+0x47e/0x490 [nfsv4]
+[   61.900485][    T1] Code: 6e cc cb c0 bf 01 00 00 00 e8 be 65 81 f5 48 c7 c7 5b cc cb c0 e8 42 18 81 f5 48 89 05 3b ed 1a 00 48 85 c0 0f
+85 94 fd ff ff <0f> 0b e9 fa fc ff ff e8 16 27 5e f6 66 0f 1f 44 00 00 90 90 90 90
+[   61.906605][    T1] RSP: 0018:ffffd3cbc001f3b0 EFLAGS: 00010246
+[   61.908952][    T1] RAX: 0000000000000000 RBX: ffff8c5562ad9340 RCX: 0000000000000000
+[   61.911701][    T1] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff8c5502168000
+[   61.914434][    T1] RBP: ffff8c5562ad9300 R08: ffffffffb62663b0 R09: 0000000000000003
+[   61.916501][    T1] R10: ffff8c550291bcc0 R11: 0000000000000000 R12: ffff8c55020bf900
+[   61.918400][    T1] R13: 0000000000000003 R14: ffff8c55020eb000 R15: 0000000000000258
+[   61.920285][    T1] FS:  00007fbf72c70880(0000) GS:ffff8c55afbe8000(0000) knlGS:0000000000000000
+[   61.922450][    T1] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   61.924599][    T1] CR2: 00007fbf732e23c8 CR3: 000000007e9bd005 CR4: 0000000000770ef0
+[   61.926751][    T1] PKRU: 55555554
+[   61.927697][    T1] Call Trace:
+[   61.928635][    T1]  <TASK>
+[   61.929430][    T1]  ? __nfs4_find_get_deviceid+0x4a/0x60 [nfsv4 afbba1d09ce808ffdfab764dec0615577be943e8]
+[   61.932071][    T1]  ? _raw_spin_unlock+0xe/0x30
+[   61.933575][    T1]  ? nfs4_find_get_deviceid+0x39c/0x460 [nfsv4 afbba1d09ce808ffdfab764dec0615577be943e8]
+[   61.936817][    T1]  nfs4_ff_layout_prepare_ds+0xeb/0x2e0 [nfs_layout_flexfiles a92ede795548aff05ebc86e90e14083ed7c97953]
+[   61.940938][    T1]  ff_layout_choose_ds_for_read+0x91/0x120 [nfs_layout_flexfiles a92ede795548aff05ebc86e90e14083ed7c97953]
+[   61.944809][    T1]  ff_layout_pg_init_read+0xc2/0x2d0 [nfs_layout_flexfiles a92ede795548aff05ebc86e90e14083ed7c97953]
+[   61.948102][    T1]  __nfs_pageio_add_request+0x30f/0x520 [nfs 706f2be7c137ba70b6dc79397a1acf17ddc1d13c]
+[   61.950614][    T1]  nfs_pageio_add_request+0x1cc/0x370 [nfs 706f2be7c137ba70b6dc79397a1acf17ddc1d13c]
+[   61.953083][    T1]  nfs_read_add_folio+0x174/0x290 [nfs 706f2be7c137ba70b6dc79397a1acf17ddc1d13c]
+[   61.955479][    T1]  nfs_readahead+0x1ee/0x280 [nfs 706f2be7c137ba70b6dc79397a1acf17ddc1d13c]
+[   61.957919][    T1]  ? xas_store+0x410/0x710
+[   61.959227][    T1]  read_pages+0x63/0x200
+[   61.960408][    T1]  page_cache_ra_order+0x224/0x370
+[   61.961860][    T1]  filemap_get_pages+0x13e/0x780
+[   61.963249][    T1]  filemap_read+0x106/0x430
+[   61.964740][    T1]  ? profile_transition+0x198/0xd30
+[   61.966709][    T1]  ? aa_file_perm+0x1ac/0x600
+[   61.968324][    T1]  ? _raw_spin_unlock+0xe/0x30
+[   61.969900][    T1]  ? apparmor_bprm_creds_for_exec+0x230/0xd10
+[   61.971854][    T1]  ? nfs4_have_delegation+0x45/0xa0 [nfsv4 afbba1d09ce808ffdfab764dec0615577be943e8]
+[   61.975274][    T1]  nfs_file_read+0xfc/0x130 [nfs 706f2be7c137ba70b6dc79397a1acf17ddc1d13c]
+[   61.978374][    T1]  __kernel_read+0x165/0x350
+[   61.979975][    T1]  bprm_execve+0x29f/0x5f0
+[   61.981208][    T1]  do_execveat_common.isra.0+0x197/0x1b0
+[   61.982681][    T1]  __x64_sys_execve+0x3d/0x60
+[   61.983916][    T1]  do_syscall_64+0xe1/0x610
+[   61.985099][    T1]  ? do_syscall_64+0xe1/0x610
+[   61.986300][    T1]  ? security_task_prctl+0x3d/0xa0
+[   61.987542][    T1]  ? security_task_prctl+0x3d/0xa0
+[   61.988777][    T1]  ? __do_sys_prctl+0x2b/0xe80
+[   61.989991][    T1]  ? do_syscall_64+0xe1/0x610
+[   61.991649][    T1]  ? security_task_prctl+0x3d/0xa0
+[   61.993036][    T1]  ? __do_sys_prctl+0x2b/0xe80
+[   61.994341][    T1]  ? security_task_prctl+0x3d/0xa0
+[   61.995738][    T1]  ? __do_sys_prctl+0x2b/0xe80
+[   61.997158][    T1]  ? __do_sys_prctl+0x2b/0xe80
+[   61.999187][    T1]  ? do_syscall_64+0xe1/0x610
+[   62.000939][    T1]  ? security_task_prctl+0x3d/0xa0
+[   62.002651][    T1]  ? __do_sys_prctl+0x2b/0xe80
+[   62.004263][    T1]  ? do_syscall_64+0xe1/0x610
+[   62.005715][    T1]  ? __do_sys_prctl+0x2b/0xe80
+[   62.007831][    T1]  ? do_syscall_64+0xe1/0x610
+[   62.009606][    T1]  ? do_syscall_64+0xe1/0x610
+[   62.011460][    T1]  ? do_syscall_64+0xe1/0x610
+[   62.012797][    T1]  ? do_syscall_64+0x98/0x610
+[   62.014028][    T1]  ? clear_bhb_loop+0x40/0x90
+[   62.015297][    T1]  entry_SYSCALL_64_after_hwframe+0x76/0x7e
+[   62.016790][    T1] RIP: 0033:0x7fbf72e819cb
+[   62.017916][    T1] Code: 00 00 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 90 90 b8 3b
+00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 0d 14 11 00 f7 d8 64 89 01 48
+[   62.022437][    T1] RSP: 002b:00007ffd27858a88 EFLAGS: 00000202 ORIG_RAX: 000000000000003b
+[   62.024942][    T1] RAX: ffffffffffffffda RBX: 00007ffd27858aa0 RCX: 00007fbf72e819cb
+[   62.027165][    T1] RDX: 0000556d66a5fb20 RSI: 00007ffd27858a90 RDI: 0000556d2f0fb522
+[   62.029504][    T1] RBP: 00007ffd27858cb0 R08: 0000000000000000 R09: 0000000000000001
+[   62.032291][    T1] R10: 0000000000000000 R11: 0000000000000202 R12: 0000000000000001
+[   62.034980][    T1] R13: 00007fbf73b93000 R14: 00007ffd27858fd8 R15: 0000556d2f102bb8
+[   62.037504][    T1]  </TASK>
+[   62.038474][    T1] ---[ end trace 0000000000000000 ]---
+```
+
+Since nfs_layout_flexfiles does not expose nfsv3 as a softdep, dracut has to
+force loading it.
+
+Fixes #2688
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/62fbbfbb4e0040b07886e278d52751b6cc15f1ca
+---
+ test/TEST-60-NFS/test.sh | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/test/TEST-60-NFS/test.sh b/test/TEST-60-NFS/test.sh
+index f2fd0ef..e7b4003 100755
+--- a/test/TEST-60-NFS/test.sh
++++ b/test/TEST-60-NFS/test.sh
+@@ -59,11 +59,16 @@ client_test() {
+     qemu_add_drive disk_args "$TESTDIR"/marker.img marker 1
+     qemu_add_drive disk_args "$TESTDIR"/marker2.img marker2 1
+ 
++    # The rd.driver.pre=nfsv3 kernel command line option is a temporary
++    # workaround to fix a kernel bug: nfsv3 is needed by NFSv4 tests until
++    # flexfilelayout exposes it as a softdep or the symbol nfs3_set_ds_client
++    # is resolved from the driver.
++    # https://github.com/dracut-ng/dracut/issues/2688
+     "$testdir"/run-qemu \
+         "${disk_args[@]}" \
+         -device virtio-net-pci,netdev=lan0,mac="$mac" \
+         -netdev dgram,id=lan0,local.type=inet,local.host=localhost,local.port=60601,remote.type=inet,remote.host=localhost,remote.port=60600 \
+-        -append "$TEST_KERNEL_CMDLINE $cmdline ro" \
++        -append "$TEST_KERNEL_CMDLINE $cmdline ro rd.driver.pre=nfsv3" \
+         -initrd "$TESTDIR"/initramfs.testing
+ 
+     if ! test_marker_check nfs-OK; then

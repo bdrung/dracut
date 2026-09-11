@@ -1,0 +1,35 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Mon, 31 Aug 2026 22:36:28 +0200
+Subject: fix(busybox): do not install blkid if udev rules need -o
+
+The busybox `blkid` applet does not support the option `-o`. The
+`13-dm-disk.rules` udev rule might either use the builtin blkid or call
+`/sbin/blkid -o udev -p $tempnode`. The latter is not supported by
+busybox.
+
+So check the udev rule to call `blkid` with `-o` and do not install this
+busybox applet in this case.
+
+Fixes: https://github.com/dracut-ng/dracut/issues/2512
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/89e3c00d4c2262abfc1b62e34ec2c8d877ef3087
+---
+ modules.d/10busybox/module-setup.sh | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/modules.d/10busybox/module-setup.sh b/modules.d/10busybox/module-setup.sh
+index 5e84564..9643c29 100755
+--- a/modules.d/10busybox/module-setup.sh
++++ b/modules.d/10busybox/module-setup.sh
+@@ -23,6 +23,12 @@ install() {
+ 
+     # install busybox symlinks manually
+     for _path in $($_busybox --list-full); do
++        if [[ ${_path##*/} == blkid ]] && grep -qr "blkid -o" "${udevdir}/rules.d" 2> /dev/null; then
++            # The busybox blkid applet does not support the option -o.
++            # See https://github.com/vda-linux/busybox_mirror/issues/33
++            continue
++        fi
++
+         # if busybox is built without CONFIG_FEATURE_INSTALLER=y, the list
+         # has only plain names
+         if [[ ${_path##*/} == "${_path}" ]]; then

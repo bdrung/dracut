@@ -1,0 +1,40 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Mon, 24 Aug 2026 19:58:37 +0200
+Subject: feat(dracut-initramfs-restore): support 3cpio
+
+Support using `3cpio` in `dracut-initramfs-restore` if available.
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/8b683e6a60d4f37790e0d44b2c1c41c4a186545a
+---
+ dracut-initramfs-restore.sh | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/dracut-initramfs-restore.sh b/dracut-initramfs-restore.sh
+index c19a030..3b9e3d0 100755
+--- a/dracut-initramfs-restore.sh
++++ b/dracut-initramfs-restore.sh
+@@ -54,13 +54,17 @@ find_initrd_for_kernel_version() {
+ 
+ extract_initrd() {
+     local initrd="$1"
+-    (command -v zcat > /dev/null && $SKIP "$initrd" 2> /dev/null | zcat 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
+-        || (command -v bzcat > /dev/null && $SKIP "$initrd" 2> /dev/null | bzcat 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
+-        || (command -v xzcat > /dev/null && $SKIP "$initrd" 2> /dev/null | xzcat 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
+-        || (command -v lz4 > /dev/null && $SKIP "$initrd" 2> /dev/null | lz4 -d -c 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
+-        || (command -v lzop > /dev/null && $SKIP "$initrd" 2> /dev/null | lzop -d -c 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
+-        || (command -v zstd > /dev/null && $SKIP "$initrd" 2> /dev/null | zstd -d -c 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
+-        || ($SKIP "$initrd" 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1)
++    if command -v 3cpio > /dev/null; then
++        3cpio --extract "$initrd"
++    else
++        (command -v zcat > /dev/null && $SKIP "$initrd" 2> /dev/null | zcat 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
++            || (command -v bzcat > /dev/null && $SKIP "$initrd" 2> /dev/null | bzcat 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
++            || (command -v xzcat > /dev/null && $SKIP "$initrd" 2> /dev/null | xzcat 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
++            || (command -v lz4 > /dev/null && $SKIP "$initrd" 2> /dev/null | lz4 -d -c 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
++            || (command -v lzop > /dev/null && $SKIP "$initrd" 2> /dev/null | lzop -d -c 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
++            || (command -v zstd > /dev/null && $SKIP "$initrd" 2> /dev/null | zstd -d -c 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
++            || ($SKIP "$initrd" 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1)
++    fi
+ }
+ 
+ mount -o ro /boot &> /dev/null || :

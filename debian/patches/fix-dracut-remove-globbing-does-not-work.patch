@@ -1,0 +1,38 @@
+From: Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+Date: Tue, 4 Aug 2026 14:47:28 +0200
+Subject: fix(dracut): --remove globbing does not work
+
+The glob pattern is quoted in the call to `rm`, so it does not expand.
+
+E.g.:
+
+```
+$ dracut -f --remove "/etc/udev/rules.d/*.rules" test.img
+$ lsinitrd test.img | grep etc/udev/rules.d
+Arguments:  -f --remove '/etc/udev/rules.d/*.rules'
+drwxr-xr-x   1 root     root            0 Aug  4 14:06 etc/udev/rules.d
+-rw-r--r--   1 root     root          297 Jul 22 08:10 etc/udev/rules.d/59-persistent-storage.rules
+-rw-r--r--   1 root     root         1030 Jul 22 08:10 etc/udev/rules.d/61-persistent-storage.rules
+```
+
+Fixes f8dfe3ee5b958262c38a821b15443893e400dba0
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/c000b3fd7327f2814bc0e3c9a0c2c3254bcbee73
+---
+ dracut.sh | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/dracut.sh b/dracut.sh
+index 803c01e..ca8c131 100755
+--- a/dracut.sh
++++ b/dracut.sh
+@@ -3117,7 +3117,8 @@ fi
+ 
+ # remove items
+ for items in $remove_items; do
+-    rm -rf -- "${initdir:?}/${items:?}"
++    # shellcheck disable=SC2086
++    rm -rf -- "${initdir:?}"/${items#/}
+ done
+ 
+ # protect existing output file against build errors
