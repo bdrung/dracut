@@ -1,0 +1,107 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Mon, 7 Sep 2026 00:00:59 +0200
+Subject: fix: use /sbin/losetup for CONFIG_FEATURE_PREFER_APPLETS
+
+Several Dracut modules might call `losetup --show`, but busybox does not
+support the option `--show`. This missing option is reported upstream at
+https://github.com/vda-linux/busybox_mirror/issues/37.
+
+The Dracut busybox module skips intstalling the losetup applet. This
+has no effect when using busybox-static because busybox-static is built
+with CONFIG_FEATURE_PREFER_APPLETS enabled. Busybox sh will prefer the
+incompatible losetup applet instead of using the real losetup binary.
+
+Bug-Debian: https://bugs.debian.org/1146905
+Forwarded: https://github.com/dracut-ng/dracut/pull/2722
+---
+ modules.d/70dmsquash-live/dmsquash-live-root.sh | 12 ++++++------
+ modules.d/70img-lib/img-lib.sh                  |  2 +-
+ modules.d/73crypt-loop/crypt-loop-lib.sh        |  2 +-
+ modules.d/86shutdown/shutdown.sh                |  2 +-
+ 4 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/modules.d/70dmsquash-live/dmsquash-live-root.sh b/modules.d/70dmsquash-live/dmsquash-live-root.sh
+index 3702a91..207e3cb 100755
+--- a/modules.d/70dmsquash-live/dmsquash-live-root.sh
++++ b/modules.d/70dmsquash-live/dmsquash-live-root.sh
+@@ -172,7 +172,7 @@ do_live_overlay() {
+             mount -n -t auto "$devspec" /run/initramfs/overlayfs || :
+         fi
+         if [ -f "/run/initramfs/overlayfs$pathspec" ] && [ -w "/run/initramfs/overlayfs$pathspec" ]; then
+-            OVERLAY_LOOPDEV=$(losetup -f --show ${readonly_overlay:+-r} "/run/initramfs/overlayfs$pathspec")
++            OVERLAY_LOOPDEV=$(/sbin/losetup -f --show ${readonly_overlay:+-r} "/run/initramfs/overlayfs$pathspec")
+             over=$OVERLAY_LOOPDEV
+             umount -l /run/initramfs/overlayfs || :
+             oltype=$(det_img_fs "$OVERLAY_LOOPDEV")
+@@ -271,10 +271,10 @@ do_live_overlay() {
+         else
+             dd if=/dev/null of=/overlay bs=1024 count=1 seek=$((overlay_size * 1024)) 2> /dev/null
+             if [ -n "$setup" ] && [ -n "$readonly_overlay" ]; then
+-                RO_OVERLAY_LOOPDEV=$(losetup -f --show /overlay)
++                RO_OVERLAY_LOOPDEV=$(/sbin/losetup -f --show /overlay)
+                 over=$RO_OVERLAY_LOOPDEV
+             else
+-                OVERLAY_LOOPDEV=$(losetup -f --show /overlay)
++                OVERLAY_LOOPDEV=$(/sbin/losetup -f --show /overlay)
+                 over=$OVERLAY_LOOPDEV
+             fi
+         fi
+@@ -303,8 +303,8 @@ do_live_overlay() {
+         dd if=/dev/null of=/run/initramfs/thin-overlay/meta bs=1b count=1 seek=$((thin_meta_sz)) 2> /dev/null
+         dd if=/dev/null of=/run/initramfs/thin-overlay/data bs=1b count=1 seek=$((thin_data_sz)) 2> /dev/null
+ 
+-        THIN_META_LOOPDEV=$(losetup --show -f /run/initramfs/thin-overlay/meta)
+-        THIN_DATA_LOOPDEV=$(losetup --show -f /run/initramfs/thin-overlay/data)
++        THIN_META_LOOPDEV=$(/sbin/losetup --show -f /run/initramfs/thin-overlay/meta)
++        THIN_DATA_LOOPDEV=$(/sbin/losetup --show -f /run/initramfs/thin-overlay/data)
+ 
+         echo 0 $thin_data_sz thin-pool "$THIN_META_LOOPDEV" "$THIN_DATA_LOOPDEV" 1024 1024 | dmsetup create live-overlay-pool
+         dmsetup message /dev/mapper/live-overlay-pool 0 "create_thin 0"
+@@ -400,7 +400,7 @@ if [ -n "$FSIMG" ]; then
+     if [ "$FSIMG" = "$SQUASHED" ]; then
+         BASE_LOOPDEV=$SQUASHED_LOOPDEV
+     else
+-        BASE_LOOPDEV=$(losetup -f --show ${readonly_base:+-r} "$FSIMG")
++        BASE_LOOPDEV=$(/sbin/losetup -f --show ${readonly_base:+-r} "$FSIMG")
+         sz=$(blockdev --getsz "$BASE_LOOPDEV")
+     fi
+     if [ "$setup" = rw ]; then
+diff --git a/modules.d/70img-lib/img-lib.sh b/modules.d/70img-lib/img-lib.sh
+index 1c31d2e..1799f20 100755
+--- a/modules.d/70img-lib/img-lib.sh
++++ b/modules.d/70img-lib/img-lib.sh
+@@ -27,7 +27,7 @@ det_archive() {
+ # determine filesystem type for a filesystem image
+ det_fs_img() {
+     local dev
+-    dev=$(losetup --find --show "$1") rv=""
++    dev=$(/sbin/losetup --find --show "$1") rv=""
+     det_fs "$dev"
+     rv=$?
+     losetup -d "$dev"
+diff --git a/modules.d/73crypt-loop/crypt-loop-lib.sh b/modules.d/73crypt-loop/crypt-loop-lib.sh
+index 7db82e2..33e1f87 100755
+--- a/modules.d/73crypt-loop/crypt-loop-lib.sh
++++ b/modules.d/73crypt-loop/crypt-loop-lib.sh
+@@ -22,7 +22,7 @@ loop_decrypt() {
+     if [ ! -b "$key" ]; then
+         local loopdev
+         local opts
+-        loopdev=$(losetup -f "${mntp}/${keypath}" --show)
++        loopdev=$(/sbin/losetup -f "${mntp}/${keypath}" --show)
+         opts="-d - luksOpen $loopdev ${key##*/}"
+ 
+         ask_for_password \
+diff --git a/modules.d/86shutdown/shutdown.sh b/modules.d/86shutdown/shutdown.sh
+index 0a1e915..acae003 100755
+--- a/modules.d/86shutdown/shutdown.sh
++++ b/modules.d/86shutdown/shutdown.sh
+@@ -88,7 +88,7 @@ umount_a() {
+         fi
+     done < /proc/mounts
+ 
+-    losetup -D 2>&7
++    /sbin/losetup -D 2>&7
+ 
+     exec 7>&-
+     [ "$_did_umount" = "y" ] && return 0

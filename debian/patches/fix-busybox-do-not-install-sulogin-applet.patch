@@ -1,0 +1,30 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Tue, 1 Sep 2026 20:29:12 +0200
+Subject: fix(busybox): do not install sulogin applet
+
+The busybox `sulogin` applet does not support the option `-e`
+
+Fixes: https://github.com/dracut-ng/dracut/issues/2678
+Part of: https://github.com/dracut-ng/dracut/issues/2437
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/0ea1933edbb5aeef6b64dc0e6a4f8c7abc14874c
+---
+ modules.d/10busybox/module-setup.sh | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/modules.d/10busybox/module-setup.sh b/modules.d/10busybox/module-setup.sh
+index 8d5e208..7f2ff85 100755
+--- a/modules.d/10busybox/module-setup.sh
++++ b/modules.d/10busybox/module-setup.sh
+@@ -48,6 +48,11 @@ install() {
+             # See https://github.com/vda-linux/busybox_mirror/issues/35
+             continue
+         fi
++        if [[ ${_path##*/} == sulogin ]]; then
++            # The busybox sulogin applet does not support the option -e.
++            # See https://github.com/vda-linux/busybox_mirror/issues/36
++            continue
++        fi
+ 
+         # if busybox is built without CONFIG_FEATURE_INSTALLER=y, the list
+         # has only plain names

@@ -1,0 +1,40 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Thu, 27 Aug 2026 11:40:47 +0200
+Subject: test: support mktemp applet from busybox
+
+busybox's `mktemp` applet does not support the long form `--directory`
+but it supports the short form `-d`.
+
+Part of: https://github.com/dracut-ng/dracut/issues/2437
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/725caac7a27a4e3adc4abb262ed0e6635355a6c6
+---
+ test/TEST-80-GETARG/test.sh      | 2 +-
+ test/TEST-82-DRACUT-CPIO/test.sh | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/test/TEST-80-GETARG/test.sh b/test/TEST-80-GETARG/test.sh
+index 834703e..ded49b3 100755
+--- a/test/TEST-80-GETARG/test.sh
++++ b/test/TEST-80-GETARG/test.sh
+@@ -88,7 +88,7 @@ test_run() {
+ 
+         export PATH=".:$PATH"
+         # shellcheck disable=SC2034  # NEWROOT defined for dracut-lib.sh, set by base/init.sh
+-        NEWROOT=$(mktemp --directory -p "$TESTDIR" newroot.XXXXXXXXXX)
++        NEWROOT=$(mktemp -d -p "$TESTDIR" newroot.XXXXXXXXXX)
+         # shellcheck disable=SC2034  # PREFIX defined for dracut-lib.sh to avoid creating /run/initramfs
+         PREFIX=/nonexistent
+ 
+diff --git a/test/TEST-82-DRACUT-CPIO/test.sh b/test/TEST-82-DRACUT-CPIO/test.sh
+index a897840..a89b451 100755
+--- a/test/TEST-82-DRACUT-CPIO/test.sh
++++ b/test/TEST-82-DRACUT-CPIO/test.sh
+@@ -65,7 +65,7 @@ test_run() {
+ }
+ 
+ test_setup() {
+-    CPIO_TESTDIR=$(mktemp --directory -p "$TESTDIR" cpio-test.XXXXXXXXXX)
++    CPIO_TESTDIR=$(mktemp -d -p "$TESTDIR" cpio-test.XXXXXXXXXX)
+     export CPIO_TESTDIR
+     return 0
+ }

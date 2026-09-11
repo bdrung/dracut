@@ -1,0 +1,29 @@
+From: Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+Date: Mon, 3 Aug 2026 12:02:06 +0200
+Subject: fix(iscsi): normalize the target name in the generated netroot=
+
+Commit 843af3e751782285cd2bc7c9a3a9d33e843fb91d normalized `rd.iscsi.initiator=`
+but left the target name in the `netroot=` line on the next line unnormalized,
+even though both come from the same sysfs session directory and are subject to
+the same RFC 3722 rules.
+
+Follow-up for 843af3e751782285cd2bc7c9a3a9d33e843fb91d
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/48f8b0263ffdf6e0ccbd529c7a5676de9da92972
+---
+ modules.d/74iscsi/module-setup.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/modules.d/74iscsi/module-setup.sh b/modules.d/74iscsi/module-setup.sh
+index 7c22d64..704dc28 100755
+--- a/modules.d/74iscsi/module-setup.sh
++++ b/modules.d/74iscsi/module-setup.sh
+@@ -126,7 +126,7 @@ install_iscsiroot() {
+         # Must be two separate lines, so that "sort | uniq" commands later
+         # can sort out rd.iscsi.initiator= duplicates
+         echo "rd.iscsi.initiator=$(normalized_iscsi_name "${iscsi_initiator}")"
+-        echo "netroot=iscsi:${iscsi_address}::${iscsi_port}:${iscsi_lun}:${iscsi_targetname}"
++        echo "netroot=iscsi:${iscsi_address}::${iscsi_port}:${iscsi_lun}:$(normalized_iscsi_name "${iscsi_targetname}")"
+         echo "rd.neednet=1"
+     fi
+     return 0

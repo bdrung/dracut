@@ -1,0 +1,77 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Wed, 26 Aug 2026 15:26:50 +0200
+Subject: feat(base): add get_user function
+
+Generalize the `get_rpc_user` function to take a list of expected user
+names. Call this function `get_user` and ship it in `dracut-lib.sh` to
+allow using it in other modules.
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/49f25ccabc8e38eb805f3f17dafe056bd8dfa886
+---
+ modules.d/74nfs/nfs-lib.sh       | 13 -------------
+ modules.d/74nfs/nfs-start-rpc.sh |  2 +-
+ modules.d/80base/dracut-lib.sh   | 17 +++++++++++++++++
+ 3 files changed, 18 insertions(+), 14 deletions(-)
+
+diff --git a/modules.d/74nfs/nfs-lib.sh b/modules.d/74nfs/nfs-lib.sh
+index 5394815..e76ed76 100755
+--- a/modules.d/74nfs/nfs-lib.sh
++++ b/modules.d/74nfs/nfs-lib.sh
+@@ -155,16 +155,3 @@ mount_nfs() {
+     fi
+     mount -t "$nfs" -o"$options" "$server:$path" "$mntdir"
+ }
+-
+-get_rpc_user() {
+-    while read -r line; do
+-        user="${line%%:*}"
+-        case $user in
+-            _rpc | rpc | rpcuser | nfsnobody)
+-                echo "$user"
+-                return
+-                ;;
+-        esac
+-    done < /etc/passwd
+-    echo "root"
+-}
+diff --git a/modules.d/74nfs/nfs-start-rpc.sh b/modules.d/74nfs/nfs-start-rpc.sh
+index d25e021..b80a9be 100755
+--- a/modules.d/74nfs/nfs-start-rpc.sh
++++ b/modules.d/74nfs/nfs-start-rpc.sh
+@@ -20,7 +20,7 @@ str_starts "$nfs" "nfs" || return 0
+ command -v portmap > /dev/null && [ -z "$(pidof portmap)" ] && portmap
+ if command -v rpcbind > /dev/null && [ -z "$(pidof rpcbind)" ]; then
+     mkdir -p /run/rpcbind
+-    chown "$(get_rpc_user):" /run/rpcbind
++    chown "$(get_user _rpc rpc rpcuser nfsnobody):" /run/rpcbind
+     rpcbind
+ fi
+ 
+diff --git a/modules.d/80base/dracut-lib.sh b/modules.d/80base/dracut-lib.sh
+index 1c76d33..d9a5623 100755
+--- a/modules.d/80base/dracut-lib.sh
++++ b/modules.d/80base/dracut-lib.sh
+@@ -465,6 +465,23 @@ check_quiet() {
+     fi
+ }
+ 
++# get_user <user1> [user2 ...]
++# Look up /etc/passwd for the first matching username among candidates.
++# Output the username if found, or 'root' as a fallback.
++get_user() {
++    local line user
++    while read -r line; do
++        user="${line%%:*}"
++        case " $* " in
++            *" $user "*)
++                echo "$user"
++                return 0
++                ;;
++        esac
++    done < /etc/passwd
++    echo "root"
++}
++
+ incol2() {
+     debug_off
+     local check

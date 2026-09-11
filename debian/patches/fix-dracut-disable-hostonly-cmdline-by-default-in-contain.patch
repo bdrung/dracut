@@ -1,0 +1,61 @@
+From: devkontrol <dev@kontrol.dev>
+Date: Tue, 11 Aug 2026 15:40:34 -0400
+Subject: fix(dracut): disable hostonly-cmdline by default in container
+
+Disable hostonly-cmdline by default in hostonly mode when container
+detected.
+
+Follow-up to 67d8287 .
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/1a32e7fe51af63e79a8b8835839f6d5844f28db1
+---
+ dracut.sh              | 15 ++++++++++-----
+ man/dracut.conf.5.adoc |  2 +-
+ 2 files changed, 11 insertions(+), 6 deletions(-)
+
+diff --git a/dracut.sh b/dracut.sh
+index b73e74c..e98b634 100755
+--- a/dracut.sh
++++ b/dracut.sh
+@@ -1400,6 +1400,16 @@ if [[ ${hostonly-} ]] && ! [[ $hostonly_cmdline ]] && ! is_chroot; then
+     hostonly_cmdline="yes"
+ fi
+ 
++if type -P systemd-detect-virt &> /dev/null && container=$(systemd-detect-virt -c) &> /dev/null; then
++    export DRACUT_NO_MKNOD=1
++    dinfo "Detected $container container."
++
++    if [[ ${hostonly-} ]] && ! [[ $hostonly_cmdline ]]; then
++        # Disable hostonly-cmdline by default in hostonly mode when container detected
++        hostonly_cmdline="no"
++    fi
++fi
++
+ case $hostonly_mode in
+     '')
+         [[ ${hostonly-} ]] && hostonly_mode="sloppy"
+@@ -2037,11 +2047,6 @@ else
+     }
+ fi
+ 
+-if type -P systemd-detect-virt &> /dev/null && container=$(systemd-detect-virt -c) &> /dev/null; then
+-    export DRACUT_NO_MKNOD=1
+-    dinfo "Detected $container container."
+-fi
+-
+ if [[ $persistent_policy == "mapper" ]]; then
+     unset persistent_policy
+ elif [[ -n $persistent_policy && ! -d "/dev/disk/${persistent_policy}" ]]; then
+diff --git a/man/dracut.conf.5.adoc b/man/dracut.conf.5.adoc
+index 4289f18..c8e8360 100644
+--- a/man/dracut.conf.5.adoc
++++ b/man/dracut.conf.5.adoc
+@@ -198,7 +198,7 @@ WARNING: If chrooted to another root other than the real root device, use
+ *hostonly_cmdline=*"__{yes|no}__"::
+ Store host-specific kernel command-line arguments in the initramfs when
+ set to "yes". If left unset, it automatically enables when **hostonly="yes"**
+-(unless running inside a chroot). (default=unset)
++(unless running inside a chroot or inside a container). (default=unset)
+ 
+ *hostonly_nics+=*" [__<nic>__[ __<nic>__ ...]] "::
+ Only enable listed NICs in the initramfs. The list can be empty, so other

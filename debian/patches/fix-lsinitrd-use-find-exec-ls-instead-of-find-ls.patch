@@ -1,0 +1,40 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Tue, 25 Aug 2026 20:02:26 +0200
+Subject: fix(lsinitrd): use "find -exec ls" instead of "find -ls"
+
+busybox's `find` applet does not support `-ls`. Also the output of
+`find -ls` differs from the style of `ls` and `cpio`:
+
+```
+$ touch example foobar
+$ find . -ls
+  1127667      0 drwxrwxr-x   2 root     root           80 Aug 25 17:59 .
+  1127669      0 -rw-rw-r--   1 root     root            0 Aug 25 17:59 ./foobar
+  1127668      0 -rw-rw-r--   1 root     root            0 Aug 25 17:59 ./example
+$ find . -exec ls -ld {} +
+drwxrwxr-x 2 root root 80 Aug 25 17:59 .
+-rw-rw-r-- 1 root root  0 Aug 25 17:59 ./example
+-rw-rw-r-- 1 root root  0 Aug 25 17:59 ./foobar
+```
+
+So replace `-ls` by a `ls` call.
+
+Part of: https://github.com/dracut-ng/dracut/issues/2437
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/b1050191bfcbd037243df6195e3cd08247d66d50
+---
+ lsinitrd.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lsinitrd.sh b/lsinitrd.sh
+index 80489df..6ab6d84 100755
+--- a/lsinitrd.sh
++++ b/lsinitrd.sh
+@@ -351,7 +351,7 @@ list_squash_content() {
+         */erofs-root.img)
+             (
+                 cd "$SQUASH_EXTRACT" || return 1
+-                find erofs-root/ -ls
++                find erofs-root/ -exec ls -ld {} +
+             )
+             ;;
+     esac
