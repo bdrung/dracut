@@ -30,7 +30,7 @@ Depends: 3cpio | cpio,
          udev,
          ${misc:Depends},
          ${shlibs:Depends}
-Recommends: binutils, console-setup, systemd, zstd
+Recommends: binutils, busybox-initramfs, console-setup, systemd, zstd
 Suggests: cryptsetup,
           dmsetup,
           isomd5sum,
@@ -122,7 +122,8 @@ Description: dracut is an event driven initramfs infrastructure (network modules
 Package: dracut-test
 Architecture: any
 Multi-Arch: foreign
-Depends: dracut-core,
+Depends: busybox-initramfs,
+         dracut-core,
          ipxe-qemu,
          linux-image-generic [!i386],
          mount,
