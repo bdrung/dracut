@@ -1,0 +1,52 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Thu, 23 Jul 2026 12:51:35 +0200
+Subject: fix(lunmask): use function in parse-lunmask.sh
+
+shellcheck will complain about `parse-lunmask.sh` when checking for
+busybox:
+
+```
+$ shellcheck -s busybox modules.d/74lunmask/parse-lunmask.sh
+
+In modules.d/74lunmask/parse-lunmask.sh line 28:
+        local OLDIFS="$IFS"
+        ^---^ SC2168 (error): 'local' is only valid in functions.
+
+In modules.d/74lunmask/parse-lunmask.sh line 29:
+        local IFS=","
+        ^---^ SC2168 (error): 'local' is only valid in functions.
+```
+
+So move the code into a function. Using a subshell for the loop is not
+needed there.
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/4815bf387b8ac455d1f8448176f8ab7463848d5a
+---
+ modules.d/74lunmask/parse-lunmask.sh | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/modules.d/74lunmask/parse-lunmask.sh b/modules.d/74lunmask/parse-lunmask.sh
+index 147e3de..5809aaa 100755
+--- a/modules.d/74lunmask/parse-lunmask.sh
++++ b/modules.d/74lunmask/parse-lunmask.sh
+@@ -23,8 +23,8 @@ EOF
+     fi
+ }
+ 
+-for lunmask_arg in $(getargs rd.lunmask); do
+-    (
++parse_lunmask() {
++    for lunmask_arg in $(getargs rd.lunmask); do
+         local OLDIFS="$IFS"
+         local IFS=","
+         # shellcheck disable=SC2086
+@@ -37,5 +37,7 @@ for lunmask_arg in $(getargs rd.lunmask); do
+             echo "options scsi_mod scan=manual" > /run/modprobe.d/95lunmask.conf
+         fi
+         create_udev_rule "$1" "$2" "$3"
+-    )
+-done
++    done
++}
++
++parse_lunmask

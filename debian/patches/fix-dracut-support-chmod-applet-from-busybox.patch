@@ -1,0 +1,25 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Wed, 22 Jul 2026 10:59:43 +0200
+Subject: fix(dracut): support chmod applet from busybox
+
+busybox's `chmod` applet does not support `--reference`. So replace it
+by using `stat` to query the mode.
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/8a0ee588c148a5cfc8b5f58ae7716eedde840562
+---
+ dracut.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/dracut.sh b/dracut.sh
+index 6ae5dc1..0211b1c 100755
+--- a/dracut.sh
++++ b/dracut.sh
+@@ -2884,7 +2884,7 @@ for ((i = 0; i < ${#include_src[@]}; i++)); do
+                     if ! [[ -e $object_destdir ]]; then
+                         # shellcheck disable=SC2174
+                         mkdir -m 0755 -p "$object_destdir"
+-                        chmod --reference="$objectname" "$object_destdir"
++                        chmod "$(stat -c '%a' "$objectname")" "$object_destdir"
+                     fi
+                     $DRACUT_CP -t "$object_destdir" "${dracutsysrootdir-}$objectname"/.
+                 else

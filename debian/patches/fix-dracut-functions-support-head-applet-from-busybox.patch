@@ -1,0 +1,26 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Wed, 26 Aug 2026 13:57:40 +0200
+Subject: fix(dracut-functions): support head applet from busybox
+
+busybox's `head` applet does not support the long form `--bytes` but it
+supports the short form `-c`.
+
+Part of: https://github.com/dracut-ng/dracut/issues/2437
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/305a51dedb9999c0e974355b1c7320646a09c474
+---
+ dracut-functions.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/dracut-functions.sh b/dracut-functions.sh
+index e7f4f95..cbda63a 100755
+--- a/dracut-functions.sh
++++ b/dracut-functions.sh
+@@ -55,7 +55,7 @@ trim() {
+ # is_elf <path>
+ # Returns success if the given path is an ELF. Only checks the first 4 bytes.
+ is_elf() {
+-    [[ $(head --bytes=4 "$1") == $'\x7fELF' ]]
++    [[ $(head -c 4 "$1") == $'\x7fELF' ]]
+ }
+ 
+ # find a binary.  If we were not passed the full path directly,

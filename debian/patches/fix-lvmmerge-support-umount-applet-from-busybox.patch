@@ -1,0 +1,41 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Thu, 3 Sep 2026 11:13:42 +0200
+Subject: fix(lvmmerge): support umount applet from busybox
+
+The busybox `umount` applet does not support the option
+`-R`/`--recursive`.
+
+Implement the recursive unmounting in shell by reverse iterating over
+`/proc/self/mountinfo` and unmounting matching paths.
+
+Fixes: https://github.com/dracut-ng/dracut/issues/2684
+Part of: https://github.com/dracut-ng/dracut/issues/2437
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/0ed2a3b984a7fbdbc715b0eeb9a8de795c2ab232
+---
+ modules.d/68lvmmerge/lvmmerge.sh | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/modules.d/68lvmmerge/lvmmerge.sh b/modules.d/68lvmmerge/lvmmerge.sh
+index 4c2ef97..62d662a 100755
+--- a/modules.d/68lvmmerge/lvmmerge.sh
++++ b/modules.d/68lvmmerge/lvmmerge.sh
+@@ -8,7 +8,18 @@ do_merge() {
+ 
+     systemctl --no-block stop sysroot.mount
+     swapoff -a
+-    umount -R /sysroot
++
++    # busybox does not support umount --recursive
++    local target
++    sed '1!G;h;$!d' /proc/self/mountinfo | while read -r _ _ _ _ target _; do
++        case "$target" in
++            /sysroot | /sysroot/*)
++                target=$(printf '%b_' "$target")
++                target=${target%_}
++                umount "$target"
++                ;;
++        esac
++    done
+ 
+     for tag in $(getargs rd.lvm.mergetags); do
+         lvm vgs --noheadings -o vg_name \
