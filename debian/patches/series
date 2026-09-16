@@ -86,3 +86,4 @@ feat-dracut-add-prefer-option.patch
 feat-debian.conf-prefer-busybox.patch
 fix-dracut-export-prefer_dracutmodules-to-be-used-in-drac.patch
 test-BUSYBOX-check-built-with-CONFIG_FEATURE_TR_CLASSES.patch
+feat-busybox-use-busybox-initramfs.patch
