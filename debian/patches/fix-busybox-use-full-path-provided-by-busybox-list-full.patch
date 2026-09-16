@@ -1,0 +1,62 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Tue, 25 Aug 2026 17:28:49 +0200
+Subject: fix(busybox): use full path provided by busybox --list-full
+
+`busybox --list` only lists the names of the included applets but does
+not show their paths. The busybox module looks for the path on the
+host system. It will skip the applet in case the binary is not found on
+the host system.
+
+Rely on `busybox --list-full` to provide the path for the applets. That
+way all applets can be installed. Support getting relative paths (like
+`bin/busybox`) in addition to absolute paths (like `/bin/busybox`).
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/fcf3abd126a242a564742568f4180326ef719bfa
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/250e621fafa43305bcb036bf5301d47718e9f30e
+---
+ modules.d/81busybox/module-setup.sh | 23 ++++++++++++-----------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
+
+diff --git a/modules.d/81busybox/module-setup.sh b/modules.d/81busybox/module-setup.sh
+index 402e1fc..7bce09e 100755
+--- a/modules.d/81busybox/module-setup.sh
++++ b/modules.d/81busybox/module-setup.sh
+@@ -13,26 +13,27 @@ check() {
+ 
+ # called by dracut
+ install() {
+-    local _i _path _busybox
++    local _path _busybox _busybox_path
+     local _dstdir="${dstdir:-"$initdir"}"
+     local _progs=()
+     _busybox=$(find_binary busybox)
+-    inst "$_busybox" /usr/bin/busybox
++    _busybox_path="/usr/bin/busybox"
+ 
+     # do not depend on CONFIG_FEATURE_INSTALLER
+     # install busybox symlinks manually
+-    for _i in $($_busybox --list); do
+-        [[ ${_i} == busybox ]] && continue
+-        _progs+=("${_i}")
++    for _path in $($_busybox --list-full); do
++        if [[ ${_path##*/} == busybox ]]; then
++            _busybox_path="/${_path#/}"
++        else
++            _progs+=("/${_path#/}")
++        fi
+     done
+ 
+-    for _i in "${_progs[@]}"; do
+-        _path=$(find_binary "$_i")
+-        [ -z "$_path" ] && continue
+-
++    inst "$_busybox" "$_busybox_path"
++    for _path in "${_progs[@]}"; do
+         # do not remove existing destination files
+-        [ -e "${_dstdir}/$_path" ] && continue
++        [ -e "${_dstdir}$_path" ] && continue
+ 
+-        ln_r /usr/bin/busybox "$_path"
++        ln_r "$_busybox_path" "$_path"
+     done
+ }

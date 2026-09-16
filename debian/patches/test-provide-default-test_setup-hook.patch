@@ -1,0 +1,24 @@
+From: Nadzeya Hutsko <nadzeya.hutsko@canonical.com>
+Date: Mon, 25 May 2026 21:35:42 +0200
+Subject: test: provide default test_setup hook
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/045c03c352548c283829351d201bea62178da22c
+---
+ test/test-functions | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/test/test-functions b/test/test-functions
+index bf4760a..0ca3b32 100644
+--- a/test/test-functions
++++ b/test/test-functions
+@@ -266,6 +266,10 @@ command -v test_check &> /dev/null || test_check() {
+     :
+ }
+ 
++command -v test_setup &> /dev/null || test_setup() {
++    :
++}
++
+ command -v test_cleanup &> /dev/null || test_cleanup() {
+     :
+ }

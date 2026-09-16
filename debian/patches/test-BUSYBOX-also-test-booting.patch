@@ -1,0 +1,114 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Tue, 1 Sep 2026 13:49:54 +0200
+Subject: test(BUSYBOX): also test booting
+
+Extend the busybox test case to test that booting the initrd works.
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/8cc940651096f1a23cd988fe293458c92899c7bd
+---
+ .github/workflows/daily-basic.yml |  3 +++
+ .github/workflows/integration.yml |  7 +++++++
+ test/TEST-10-BASIC/test.sh        |  3 ++-
+ test/TEST-15-BUSYBOX/test.sh      | 22 +++++++++++++++++++---
+ 4 files changed, 31 insertions(+), 4 deletions(-)
+
+diff --git a/.github/workflows/daily-basic.yml b/.github/workflows/daily-basic.yml
+index 10c6720..3f706af 100644
+--- a/.github/workflows/daily-basic.yml
++++ b/.github/workflows/daily-basic.yml
+@@ -51,6 +51,9 @@ jobs:
+                     - "81"
+                     - "82"
+                 exclude:
++                    # https://github.com/void-linux/void-packages/issues/62317
++                    - container: void:latest
++                      test: "15"
+                     # https://github.com/dracut-ng/dracut-ng/issues/1988
+                     - container: debian:sid
+                       architecture: {runner: 'ubuntu-24.04-arm', tag: 'arm'}
+diff --git a/.github/workflows/integration.yml b/.github/workflows/integration.yml
+index 7e4cd3b..d7cec3a 100644
+--- a/.github/workflows/integration.yml
++++ b/.github/workflows/integration.yml
+@@ -99,6 +99,13 @@ jobs:
+                     - "50"
+                     - "80"
+                     - "81"
++                exclude:
++                    # https://github.com/void-linux/void-packages/issues/62317
++                    - container: void:latest
++                      test: "15"
++                    # cpio is not installed on Debian/Ubuntu
++                    - container: ubuntu:devel
++                      test: "83"
+         container:
+             image: ghcr.io/dracut-ng/${{ matrix.container }}
+             options: '--device=/dev/kvm'
+diff --git a/test/TEST-10-BASIC/test.sh b/test/TEST-10-BASIC/test.sh
+index 1247c0e..0212f0f 100755
+--- a/test/TEST-10-BASIC/test.sh
++++ b/test/TEST-10-BASIC/test.sh
+@@ -21,7 +21,8 @@ test_setup() {
+     build_client_rootfs "$TESTDIR/rootfs"
+     build_ext4_image "$TESTDIR/rootfs" "$TESTDIR"/root.img dracut
+ 
+-    test_dracut
++    # Busybox is tested in a separate test case
++    test_dracut --omit busybox
+ }
+ 
+ # shellcheck disable=SC1090
+diff --git a/test/TEST-15-BUSYBOX/test.sh b/test/TEST-15-BUSYBOX/test.sh
+index 3ab360d..8004221 100755
+--- a/test/TEST-15-BUSYBOX/test.sh
++++ b/test/TEST-15-BUSYBOX/test.sh
+@@ -4,6 +4,9 @@ set -eu
+ # shellcheck disable=SC2034
+ TEST_DESCRIPTION="busybox applets win over host binaries when busybox module is included"
+ 
++# Uncomment this to debug failures
++#DEBUGFAIL="rd.debug rd.shell"
++
+ test_check() {
+     if ! type -p busybox &> /dev/null; then
+         echo "Test needs busybox... Skipping"
+@@ -11,6 +14,11 @@ test_check() {
+     fi
+ }
+ 
++test_setup() {
++    build_client_rootfs "$TESTDIR/rootfs"
++    build_ext4_image "$TESTDIR/rootfs" "$TESTDIR"/root.img dracut
++}
++
+ check_applets_from_busybox() {
+     local _applet _listing ret=0
+     local initrd="$1"
+@@ -37,9 +45,7 @@ test_run() {
+     fi
+     local ret=0
+ 
+-    test_dracut \
+-        --no-hostonly --no-kernel --drivers "" \
+-        --modules "base busybox"
++    test_dracut --add busybox
+ 
+     # Check applets the base module would otherwise install from the host.
+     # Each must resolve to busybox in the resulting initrd.
+@@ -52,6 +58,16 @@ test_run() {
+         ret=1
+     fi
+ 
++    declare -a disk_args=()
++    qemu_add_drive disk_args "$TESTDIR"/marker.img marker
++    qemu_add_drive disk_args "$TESTDIR"/root.img root
++    test_marker_reset
++    "$testdir"/run-qemu -nic none \
++        "${disk_args[@]}" \
++        -append "root=LABEL=dracut $TEST_KERNEL_CMDLINE" \
++        -initrd "$TESTDIR/initramfs.testing"
++    test_marker_check
++
+     return "$ret"
+ }
+ 
