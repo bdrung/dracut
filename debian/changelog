@@ -1,3 +1,11 @@
+dracut (112+git20261104-1) unstable; urgency=medium
+
+  * New upstream snapshot.
+  * 13-sysroot might fail on Ubuntu on unshare:
+    https://github.com/dracut-ng/dracut/issues/2430
+
+ -- Benjamin Drung <bdrung@debian.org>  Wed, 04 Nov 2026 14:48:38 +0100
+
 dracut (112-8) unstable; urgency=medium
 
   [ Frank Heimes ]
