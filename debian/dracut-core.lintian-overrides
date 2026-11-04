@@ -2,6 +2,8 @@
 dracut-core: executable-in-usr-lib [usr/lib/dracut/*]
 # kernel-install from the systemd package expects this plugin directory
 dracut-core: executable-in-usr-lib [usr/lib/kernel/install.d/*]
+# systemd inside the initrd has an initrd.target
+systemd-service-file-refers-to-unusual-wantedby-target initrd.target [usr/lib/systemd/system/*]
 # These services run in the initrd and are allowed to linger until the very end of shutdown sequence
 dracut-core: systemd-service-file-shutdown-problems [usr/lib/systemd/system/*dracut-*.service]
 # URLs and long parameters were line breaks would be misleading (LP: #2115494)
