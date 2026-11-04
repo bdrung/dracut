@@ -1,0 +1,58 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Wed, 2 Sep 2026 12:39:58 +0200
+Subject: test(FULL-SYSTEMD): avoid copying /usr twice
+
+The test setup fails with busybox 1.37:
+
+```
+Create subvolume '/root/usr/usr'
+cp: can't create '/root_crypt/usr/sbin/init': File exists
+cp: can't create '/root_crypt/usr/lib64/ld-linux-x86-64.so.2': File exists
+cp: can't create '/root_crypt/usr/lib/x86_64-linux-gnu/libzstd.so.1': File exists
+cp: can't create '/root_crypt/usr/lib/x86_64-linux-gnu/libz.so.1': File exists
+cp: can't create '/root_crypt/usr/lib/x86_64-linux-gnu/libpcre2-8.so.0': File exists
+cp: can't create '/root_crypt/usr/lib/x86_64-linux-gnu/libmount.so.1': File exists
+cp: can't create '/root_crypt/usr/lib/x86_64-linux-gnu/libkmod.so.2': File exists
+cp: can't create '/root_crypt/usr/lib/x86_64-linux-gnu/libkmod.so': File exists
+cp: can't create '/root_crypt/usr/lib/x86_64-linux-gnu/libcrypt.so.1': File exists
+cp: can't create '/root_crypt/usr/lib/x86_64-linux-gnu/libblkid.so.1': File exists
+cp: can't create '/root_crypt/usr/lib/systemd/system/testsuite.target.wants/testsuite.service': File exists
+cp: can't create '/root_crypt/usr/lib/systemd/system/default.target': File exists
+cp: can't create '/root_crypt/usr/lib/systemd/system/ctrl-alt-del.target': File exists
+cp: can't create '/root_crypt/usr/lib/cargo/bin/coreutils/mkdir': File exists
+cp: can't create '/root_crypt/usr/lib/cargo/bin/coreutils/dd': File exists
+cp: can't create '/root_crypt/usr/lib/cargo/bin/coreutils/cat': File exists
+cp: can't create '/root_crypt/usr/bin/sync': File exists
+cp: can't create '/root_crypt/usr/bin/sh': File exists
+cp: can't create '/root_crypt/usr/bin/mkdir': File exists
+cp: can't create '/root_crypt/usr/bin/dd': File exists
+cp: can't create '/root_crypt/usr/bin/cat': File exists
+```
+
+This bug is fixed in busybox 1.38 by upstream commit a0017a5b5038
+("cp: fix `cp -aT` overwriting symlink to directories").
+
+Workaround this bug in busybox 1.37 and speed up the test by not copying
+`/usr` twice.
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/cebc9274c755dce91d2538ca565f45fc88a40c10
+---
+ test/TEST-41-FULL-SYSTEMD/create-root.sh | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/test/TEST-41-FULL-SYSTEMD/create-root.sh b/test/TEST-41-FULL-SYSTEMD/create-root.sh
+index 5158541..7f43e15 100755
+--- a/test/TEST-41-FULL-SYSTEMD/create-root.sh
++++ b/test/TEST-41-FULL-SYSTEMD/create-root.sh
+@@ -24,7 +24,10 @@ umount /root/usr
+ mount -t btrfs -o subvol=usr /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_usr /root/usr
+ mount --bind /root/usr /root_crypt/usr
+ cp -a -t /root /source/*
+-cp -a -t /root_crypt /source/*
++for path in /source/*; do
++    [ "${path##*/}" = usr ] && continue
++    cp -a "$path" /root_crypt
++done
+ mkdir -p /root/run /root_crypt/run
+ btrfs filesystem sync /root/usr
+ btrfs filesystem sync /root

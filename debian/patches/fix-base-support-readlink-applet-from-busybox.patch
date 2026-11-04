@@ -1,0 +1,63 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Sun, 6 Sep 2026 14:53:26 +0200
+Subject: fix(base): support readlink applet from busybox
+
+The busybox `readlink` applet does not support the option `-e`.
+
+These `readlink` calls can be replaced by `realpath`, but `realpath` is
+not included in the initrd. So support using `readlink` (when busybox is
+used) and fall back to keep using `readlink` otherwise. Since `realpath`
+will return successfully on non-existing path, check the path exists if
+needed.
+
+Fixes: https://github.com/dracut-ng/dracut/issues/2731
+Part of: https://github.com/dracut-ng/dracut/issues/2437
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/4e62000376551caa8ccd3ed16dec825631cccc38
+---
+ modules.d/80base/dracut-lib.sh | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/modules.d/80base/dracut-lib.sh b/modules.d/80base/dracut-lib.sh
+index d9a5623..60968d2 100755
+--- a/modules.d/80base/dracut-lib.sh
++++ b/modules.d/80base/dracut-lib.sh
+@@ -512,9 +512,18 @@ udevproperty() {
+     done
+ }
+ 
++_resolve_path() {
++    # busybox readlink does not support the option -e. So rely on the realpath applet.
++    if command -v realpath > /dev/null; then
++        realpath "$@"
++    else
++        readlink -e -q "$@"
++    fi
++}
++
+ find_mount() {
+     local dev wanted_dev
+-    wanted_dev="$(readlink -e -q "$1")"
++    wanted_dev="$(_resolve_path "$1")"
+     while read -r dev _ || [ -n "$dev" ]; do
+         [ "$dev" = "$wanted_dev" ] && echo "$dev" && return 0
+     done < /proc/mounts
+@@ -645,7 +654,7 @@ copytree() {
+     local src="$1" dest="$2"
+     [ -d "$src" ] || return 1
+     mkdir -p "$dest" || return 1
+-    dest=$(readlink -e -q "$dest") || return 1
++    dest=$(_resolve_path "$dest") || return 1
+     (
+         cd "$src" || exit 1
+         cp -af . -t "$dest"
+@@ -727,8 +736,9 @@ devnames() {
+     esac
+ 
+     for d in $dev; do
++        [ -e "$d" ] || return 255
+         names="$names
+-$(readlink -e -q "$d")" || return 255
++$(_resolve_path "$d")"
+     done
+ 
+     echo "${names#

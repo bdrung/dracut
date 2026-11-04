@@ -1,0 +1,39 @@
+From: Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+Date: Tue, 4 Aug 2026 15:03:53 +0200
+Subject: fix(dracut): --remove allows removing files from the host filesystem
+
+The dracut temporary directory is under /var/tmp/dracut.???????/initramfs, so
+using ".." specifiers in the path allows escaping from it.
+
+E.g.:
+
+```
+$ mkdir /hostdir && ls -l /hostdir
+total 0
+$ dracut -f --remove "../../../../hostdir" test.img
+$ ls -l /hostdir
+ls: cannot access '/hostdir': No such file or directory
+```
+
+Fixes f8dfe3ee5b958262c38a821b15443893e400dba0
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/1abc4e0594aaeadf364774db9eb343d1ccd3572b
+---
+ dracut.sh | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/dracut.sh b/dracut.sh
+index ca8c131..b73e74c 100755
+--- a/dracut.sh
++++ b/dracut.sh
+@@ -3117,6 +3117,10 @@ fi
+ 
+ # remove items
+ for items in $remove_items; do
++    if [[ /$items/ == */../* ]]; then
++        derror "Refusing to remove '$items', '..' is not allowed."
++        continue
++    fi
+     # shellcheck disable=SC2086
+     rm -rf -- "${initdir:?}"/${items#/}
+ done

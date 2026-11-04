@@ -1,0 +1,25 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Thu, 20 Aug 2026 02:12:52 +0200
+Subject: feat(Makefile): switch from gnu99 to gnu11 by default
+
+Switch from `gnu99` to `gnu11` by default because this will be needed
+for `static_assert`.
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/00c62abecd1cfe77789bf8ddf77e17e26a72ab57
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 41c5067..5f93e24 100644
+--- a/Makefile
++++ b/Makefile
+@@ -20,7 +20,7 @@ pkglibdir ?= ${libdir}/dracut
+ sysconfdir ?= ${prefix}/etc
+ bindir ?= ${prefix}/bin
+ mandir ?= ${prefix}/share/man
+-CFLAGS ?= -O2 -g -Wall -std=gnu99 -D_FILE_OFFSET_BITS=64 -Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2
++CFLAGS ?= -O2 -g -Wall -std=gnu11 -D_FILE_OFFSET_BITS=64 -Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2
+ bashcompletiondir ?= ${datadir}/bash-completion/completions
+ pkgconfigdatadir ?= $(datadir)/pkgconfig
+ ARCH ?= $(shell uname -m)

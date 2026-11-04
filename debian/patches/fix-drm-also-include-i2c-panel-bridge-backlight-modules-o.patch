@@ -1,0 +1,39 @@
+From: Valentin Haudiquet <valentin.haudiquet@canonical.com>
+Date: Thu, 1 Oct 2026 14:38:48 +0200
+Subject: fix(drm): also include i2c/panel/bridge/backlight modules on riscv64
+
+riscv64 devicetree platforms build their display pipelines from the
+same i2c, panel, bridge and backlight drivers as arm/aarch64 platforms.
+For example the SpacemiT K3 Pico-ITX board has an eDP panel next to its
+DisplayPort connector.
+
+The hostonly modalias scan keeps only modules that use the
+drm_crtc_init, drm_dev_register or drm_encoder_init symbols. Panel and
+backlight drivers, and bridge drivers that do not create their own
+encoder, use none of them. This is why the whole module directories
+are installed for arm/aarch64 instead of relying on the scan.
+
+Extend the arch check to also match riscv64, like
+modules.d/70kernel-modules/module-setup.sh already does.
+
+Signed-off-by: Valentin Haudiquet <valentin.haudiquet@canonical.com>
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/1cddd62bc5a1850403215ac4ea624726a4d20028
+---
+ modules.d/45drm/module-setup.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/modules.d/45drm/module-setup.sh b/modules.d/45drm/module-setup.sh
+index 9ee64ba..022d690 100755
+--- a/modules.d/45drm/module-setup.sh
++++ b/modules.d/45drm/module-setup.sh
+@@ -9,8 +9,8 @@ check() {
+ installkernel() {
+     # Include KMS capable drm drivers
+ 
+-    if [[ ${DRACUT_ARCH} == arm* || ${DRACUT_ARCH} == aarch64 ]]; then
+-        # arm/aarch64 specific modules needed by drm
++    if [[ ${DRACUT_ARCH} == arm* || ${DRACUT_ARCH} == aarch64 || ${DRACUT_ARCH} == riscv* ]]; then
++        # arm/aarch64/riscv specific modules needed by drm
+         hostonly=$(optional_hostonly) instmods \
+             leds-qcom-lpg \
+             "=drivers/gpu/drm/i2c" \

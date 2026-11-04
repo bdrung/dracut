@@ -1,0 +1,41 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Mon, 24 Aug 2026 20:02:53 +0200
+Subject: feat(dracut-initramfs-restore): use extractinitrd
+
+Simplify the `dracut-initramfs-restore` code by using the new
+`extractinitrd` helper tool. Either `3cpio` or `extractinitrd` will be
+needed.
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/83873dc72d6b44ee0db141b6e97cb341d3d898cc
+---
+ dracut-initramfs-restore.sh | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
+
+diff --git a/dracut-initramfs-restore.sh b/dracut-initramfs-restore.sh
+index 3b9e3d0..c7bc4de 100755
+--- a/dracut-initramfs-restore.sh
++++ b/dracut-initramfs-restore.sh
+@@ -14,8 +14,6 @@ trap 'echo "Received SIGTERM signal, ignoring!" >&2' TERM
+ KERNEL_VERSION="$(uname -r)"
+ 
+ [[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
+-SKIP="$dracutbasedir/skipcpio"
+-[[ -x $SKIP ]] || SKIP="cat"
+ 
+ find_initrd_for_kernel_version() {
+     local kernel_version="$1"
+@@ -57,13 +55,7 @@ extract_initrd() {
+     if command -v 3cpio > /dev/null; then
+         3cpio --extract "$initrd"
+     else
+-        (command -v zcat > /dev/null && $SKIP "$initrd" 2> /dev/null | zcat 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
+-            || (command -v bzcat > /dev/null && $SKIP "$initrd" 2> /dev/null | bzcat 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
+-            || (command -v xzcat > /dev/null && $SKIP "$initrd" 2> /dev/null | xzcat 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
+-            || (command -v lz4 > /dev/null && $SKIP "$initrd" 2> /dev/null | lz4 -d -c 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
+-            || (command -v lzop > /dev/null && $SKIP "$initrd" 2> /dev/null | lzop -d -c 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
+-            || (command -v zstd > /dev/null && $SKIP "$initrd" 2> /dev/null | zstd -d -c 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
+-            || ($SKIP "$initrd" 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1)
++        "$dracutbasedir/extractinitrd" "$initrd"
+     fi
+ }
+ 

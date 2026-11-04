@@ -1,0 +1,39 @@
+From: Fiona Klute <fiona.klute@gmx.de>
+Date: Thu, 20 Aug 2026 13:58:06 +0200
+Subject: docs(cli): formatting & grammar fix for
+ DRACUT_INSTALL_LOG_{TARGET,LEVEL}
+
+Correctly end bold formatting of "dracut-install", and simplify sentences with
+three variations of "run".
+
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/c8ab9b5388072747f3f73848af0dcb651d42abb1
+---
+ man/dracut.8.adoc | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/man/dracut.8.adoc b/man/dracut.8.adoc
+index 8b39aab..4f9ffd4 100644
+--- a/man/dracut.8.adoc
++++ b/man/dracut.8.adoc
+@@ -792,17 +792,15 @@ Default:
+     _PATH_
+ 
+ _DRACUT_INSTALL_LOG_TARGET_::
+-    overrides **DRACUT_LOG_TARGET** for **dracut-install**. It allows
+-    running **dracut-install* to run with different log target that
+-    **dracut** runs with.
++    overrides **DRACUT_LOG_TARGET** for **dracut-install**. It allows running
++    **dracut-install** with a different log target than **dracut**.
+ +
+ Default:
+     _DRACUT_LOG_TARGET_
+ 
+ _DRACUT_INSTALL_LOG_LEVEL_::
+-    overrides **DRACUT_LOG_LEVEL** for **dracut-install**. It allows
+-    running **dracut-install* to run with different log level that
+-    **dracut** runs with.
++    overrides **DRACUT_LOG_LEVEL** for **dracut-install**. It allows running
++    **dracut-install** with a different log level than **dracut**.
+ +
+ Default:
+     _DRACUT_LOG_LEVEL_

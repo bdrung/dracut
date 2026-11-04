@@ -1,0 +1,48 @@
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Mon, 7 Sep 2026 20:23:58 +0200
+Subject: test(BUSYBOX): check built with CONFIG_FEATURE_TR_CLASSES
+
+Dracut uses code like `tr '[:upper:]' '[:lower:]'` that require the
+busybox feature `CONFIG_FEATURE_TR_CLASSES`.
+
+Instead of documenting this requirement somewhere, add a test case for
+it.
+
+See https://github.com/dracut-ng/dracut/issues/2687
+Origin: upstream, https://github.com/dracut-ng/dracut/commit/7cc3a8e53ae7501c8bb21f21f9b6f54026d8b9a8
+---
+ test/TEST-15-BUSYBOX/test.sh | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/test/TEST-15-BUSYBOX/test.sh b/test/TEST-15-BUSYBOX/test.sh
+index 8004221..a55466e 100755
+--- a/test/TEST-15-BUSYBOX/test.sh
++++ b/test/TEST-15-BUSYBOX/test.sh
+@@ -39,12 +39,27 @@ check_applets_from_busybox() {
+     return "$ret"
+ }
+ 
++check_busybox_feature_tr_classes() {
++    local lowercase
++    lowercase=$(echo DRACUT | busybox tr '[:upper:]' '[:lower:]')
++    if [ "$lowercase" != "dracut" ]; then
++        echo "Error: busybox was built without CONFIG_FEATURE_TR_CLASSES" >&2
++        return 1
++    fi
++}
++
++check_busybox_features() {
++    check_busybox_feature_tr_classes
++}
++
+ test_run() {
+     if [[ ${V-} -ge 2 ]]; then
+         set -x
+     fi
+     local ret=0
+ 
++    check_busybox_features
++
+     test_dracut --add busybox
+ 
+     # Check applets the base module would otherwise install from the host.
