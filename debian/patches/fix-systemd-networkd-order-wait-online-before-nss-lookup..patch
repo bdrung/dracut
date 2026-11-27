@@ -1,0 +1,26 @@
+From: Viktor Pashaiev <w.paszajew@gmail.com>
+Date: Fri, 27 Nov 2026 17:50:45 +0100
+Subject: fix(systemd-networkd): order wait-online before nss-lookup.target
+
+Order systemd-networkd-wait-online.service before nss-lookup.target and
+pull in nss-lookup.target when rd.neednet=1 is active so services
+ordered After=nss-lookup.target (such as chronyd.service) wait for the
+network to be online.
+
+Origin: upstream, https://github.com/dracut-ng/dracut/pull/2845
+---
+ modules.d/11systemd-networkd/99-wait-online-dracut.conf | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/modules.d/11systemd-networkd/99-wait-online-dracut.conf b/modules.d/11systemd-networkd/99-wait-online-dracut.conf
+index da90596..4b40bd8 100644
+--- a/modules.d/11systemd-networkd/99-wait-online-dracut.conf
++++ b/modules.d/11systemd-networkd/99-wait-online-dracut.conf
+@@ -1,5 +1,6 @@
+ [Unit]
+-Before=dracut-initqueue.service
++Before=dracut-initqueue.service nss-lookup.target
++Wants=nss-lookup.target
+ ConditionPathExists=/run/networkd/initrd/neednet
+ 
+ [Service]
