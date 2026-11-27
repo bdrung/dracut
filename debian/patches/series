@@ -1,2 +1,0 @@
-fix-systemd-networkd-populate-resolv.conf-via-initrd-reso.patch
-fix-systemd-networkd-order-wait-online-before-nss-lookup..patch
